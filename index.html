@@ -245,6 +245,7 @@ input:focus{border-color:var(--gb);box-shadow:0 0 0 3px rgba(99,153,34,0.15)}
   </div>
   <div class="nav">
     <button class="nav-btn active" id="anav-r" onclick="adminTab('r')">Resultados</button>
+    <button class="nav-btn" id="anav-pred" onclick="adminTab('pred')">👁 Predicciones</button>
     <button class="nav-btn" id="anav-pagos" onclick="adminTab('pagos')">💰 Pagos</button>
     <button class="nav-btn" id="anav-p" onclick="adminTab('p')">Participantes</button>
   </div>
@@ -256,6 +257,23 @@ input:focus{border-color:var(--gb);box-shadow:0 0 0 3px rgba(99,153,34,0.15)}
     <div id="admin-weeks"></div>
     <div style="padding:1rem 0">
       <button class="btn btn-primary" onclick="saveResults()" id="btn-save">Guardar y recalcular scores</button>
+    </div>
+  </div>
+
+  <!-- Predicciones de usuarios -->
+  <div id="admin-pred-panel" style="display:none">
+    <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Selecciona un participante para ver y editar sus predicciones.</p>
+    <div id="admin-pred-selector"></div>
+    <div id="admin-pred-detail" style="display:none">
+      <div class="topbar" style="margin-top:16px">
+        <div style="font-size:14px;font-weight:600" id="pred-editing-name"></div>
+        <button class="btn btn-sm" onclick="closePredDetail()">← Volver</button>
+      </div>
+      <div class="admin-tabs-sm" id="pred-wtabs"></div>
+      <div id="pred-weeks"></div>
+      <div style="padding:1rem 0">
+        <button class="btn btn-primary" onclick="savePredEdits()" id="btn-save-pred">Guardar cambios del participante</button>
+      </div>
     </div>
   </div>
 
@@ -282,7 +300,7 @@ input:focus{border-color:var(--gb);box-shadow:0 0 0 3px rgba(99,153,34,0.15)}
 <div class="toast" id="toast"></div>
 
 <script>
-const ADMIN_PW='Mundial2026';
+const ADMIN_PW='RIVALSMUNDIAL2026';
 const FLAGS={'México':'🇲🇽','Sudáfrica':'🇿🇦','Corea del Sur':'🇰🇷','Rep. Checa':'🇨🇿','Canadá':'🇨🇦','Bosnia y Herz.':'🇧🇦','EE.UU.':'🇺🇸','Paraguay':'🇵🇾','Qatar':'🇶🇦','Suiza':'🇨🇭','Brasil':'🇧🇷','Marruecos':'🇲🇦','Haití':'🇭🇹','Escocia':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Australia':'🇦🇺','Turquía':'🇹🇷','Alemania':'🇩🇪','Curazao':'🇨🇼','Países Bajos':'🇳🇱','Japón':'🇯🇵','Costa de Marfil':'🇨🇮','Ecuador':'🇪🇨','Suecia':'🇸🇪','Túnez':'🇹🇳','España':'🇪🇸','Cabo Verde':'🇨🇻','Bélgica':'🇧🇪','Egipto':'🇪🇬','Arabia Saudita':'🇸🇦','Uruguay':'🇺🇾','Irán':'🇮🇷','Nueva Zelanda':'🇳🇿','Francia':'🇫🇷','Senegal':'🇸🇳','Irak':'🇮🇶','Noruega':'🇳🇴','Argentina':'🇦🇷','Argelia':'🇩🇿','Austria':'🇦🇹','Jordania':'🇯🇴','Portugal':'🇵🇹','RD del Congo':'🇨🇩','Inglaterra':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Croacia':'🇭🇷','Ghana':'🇬🇭','Panamá':'🇵🇦','Uzbekistán':'🇺🇿','Colombia':'🇨🇴'};
 
 const WEEKS=[
@@ -442,6 +460,14 @@ function renderWeekBody(){
   </div>`;
   else if(wi+1<3&&!locked[wi+1]) html+=`<div class="submit-week"><button class="btn banner-blue" style="border:0.5px solid var(--bb);color:var(--bt)" onclick="switchWeek(${wi+1})">Ir a ${WEEKS[wi+1].short} →</button></div>`;
   else if(wi===2&&locked[0]&&locked[1]&&locked[2]) html+=`<div class="banner banner-green" style="margin-top:16px">🏆 ¡Completaste toda la quiniela!</div>`;
+  // Botón PDF siempre visible si al menos una semana está enviada
+  if(locked.some(Boolean)){
+    html+=`<div style="padding:8px 0 4px">
+      <button class="btn btn-blue" onclick="downloadPDF()" style="display:flex;align-items:center;justify-content:center;gap:8px">
+        📄 Descargar mis predicciones en PDF
+      </button>
+    </div>`;
+  }
   document.getElementById('play-body').innerHTML=html;
   document.getElementById('play-sub').textContent=locked.filter(Boolean).length+' de 3 semanas enviadas';
 }
@@ -616,12 +642,13 @@ async function togglePay(name){
 }
 
 function adminTab(t){
-  ['r','pagos','p'].forEach(tab=>{
+  ['r','pred','pagos','p'].forEach(tab=>{
     document.getElementById('admin-'+tab+'-panel').style.display=t===tab?'block':'none';
     document.getElementById('anav-'+tab).classList.toggle('active',t===tab);
   });
   if(t==='pagos'){loadAll().then(renderPayments);}
   if(t==='p')renderAdminPlayers();
+  if(t==='pred'){loadAll().then(()=>{closePredDetail();renderAdminPredSelector();});}
 }
 
 function renderAdminPlayers(){
@@ -682,6 +709,159 @@ function exportExcel(){
   XLSX.utils.book_append_sheet(wb,ws2,'Predicciones detalladas');
   XLSX.writeFile(wb,'Quiniela_Mundial_2026.xlsx');
   showToast('📥 Excel descargado');
+}
+
+// ---- VER / EDITAR PREDICCIONES DE USUARIOS (ADMIN) ----
+let editingPlayer=null;
+let editingPreds=[{},{},{}];
+let editWeekIdx=0;
+
+function renderAdminPredSelector(){
+  const pl=Object.entries(allPlayers).sort((a,b)=>a[0].localeCompare(b[0]));
+  if(!pl.length){document.getElementById('admin-pred-selector').innerHTML='<div class="empty">Sin participantes aún.</div>';return;}
+  document.getElementById('admin-pred-selector').innerHTML=pl.map(([name,p])=>{
+    const lw=p.lockedWeeks||{};
+    const sems=[0,1,2].filter(i=>lw[i]).length;
+    const paid=payments[name]===true;
+    return `<div class="pay-row" style="cursor:pointer" onclick="openPredDetail('${name}')">
+      <div class="sb-av${paid?' paid-ring':''}">${initials(name)}${paid?'<div class="paid-dot">✓</div>':''}</div>
+      <div class="sb-info">
+        <div class="sb-name">${name}</div>
+        <div class="sb-detail">${sems} sem. enviada${sems!==1?'s':''} · ${p.score||0} pts</div>
+      </div>
+      <span style="font-size:20px;color:var(--text3)">›</span>
+    </div>`;
+  }).join('');
+}
+
+function openPredDetail(name){
+  editingPlayer=name;
+  const p=allPlayers[name];
+  editingPreds=[{...(p.weeks&&p.weeks[0]||{})},{...(p.weeks&&p.weeks[1]||{})},{...(p.weeks&&p.weeks[2]||{})}];
+  editWeekIdx=0;
+  document.getElementById('admin-pred-selector').style.display='none';
+  document.getElementById('admin-pred-detail').style.display='block';
+  document.getElementById('pred-editing-name').textContent='Editando: '+name;
+  renderPredWTabs();renderPredWeek();
+}
+
+function closePredDetail(){
+  editingPlayer=null;
+  document.getElementById('admin-pred-selector').style.display='block';
+  document.getElementById('admin-pred-detail').style.display='none';
+}
+
+function renderPredWTabs(){
+  document.getElementById('pred-wtabs').innerHTML=WEEKS.map((w,i)=>
+    `<button class="atab${i===editWeekIdx?' active':''}" onclick="switchPredWeek(${i})">${w.short}</button>`
+  ).join('');
+}
+
+function renderPredWeek(){
+  const wi=editWeekIdx;let html='';
+  WEEKS[wi].days.forEach((d,di)=>{
+    html+=`<div><div class="day-lbl">${d.day}</div>`;
+    d.matches.forEach((m,mi)=>{
+      const id=mkId(wi,di,mi);const sel=editingPreds[wi][id]||'';
+      html+=`<div class="admin-match">
+        <button class="atbtn home${sel==='h'?' sel':''}" id="ep_h_${id}" onclick="pickPredEdit(${wi},'${id}','h')"><span class="flag">${fl(m.h)}</span><span>${m.h}</span></button>
+        <div class="mid"><span class="gtag">Gr.${m.g}</span><button class="aempbtn${sel==='e'?' sel':''}" id="ep_e_${id}" onclick="pickPredEdit(${wi},'${id}','e')">Empate</button></div>
+        <button class="atbtn away${sel==='a'?' sel':''}" id="ep_a_${id}" onclick="pickPredEdit(${wi},'${id}','a')"><span class="flag">${fl(m.a)}</span><span>${m.a}</span></button>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  document.getElementById('pred-weeks').innerHTML=html;
+}
+
+function switchPredWeek(i){editWeekIdx=i;renderPredWTabs();renderPredWeek();}
+
+function pickPredEdit(wi,id,val){
+  if(editingPreds[wi][id]===val)delete editingPreds[wi][id]; else editingPreds[wi][id]=val;
+  const sel=editingPreds[wi][id]||'';
+  const hb=document.getElementById('ep_h_'+id),ab=document.getElementById('ep_a_'+id),eb=document.getElementById('ep_e_'+id);
+  if(hb)hb.className='atbtn home'+(sel==='h'?' sel':'');
+  if(ab)ab.className='atbtn away'+(sel==='a'?' sel':'');
+  if(eb)eb.className='aempbtn'+(sel==='e'?' sel':'');
+}
+
+async function savePredEdits(){
+  if(!editingPlayer)return;
+  const btn=document.getElementById('btn-save-pred');
+  btn.textContent='Guardando...';btn.disabled=true;
+  try{
+    allPlayers[editingPlayer].weeks={0:{...editingPreds[0]},1:{...editingPreds[1]},2:{...editingPreds[2]}};
+    await dbSet(dbRef(db,'players/'+editingPlayer+'/weeks'),allPlayers[editingPlayer].weeks);
+    calcScores();
+    const upd={};
+    upd['players/'+editingPlayer+'/score']=allPlayers[editingPlayer].score||0;
+    upd['players/'+editingPlayer+'/possible']=allPlayers[editingPlayer].possible||0;
+    await dbUpdate(dbRef(db),upd);
+    showToast('✅ Predicciones de '+editingPlayer+' actualizadas');
+    closePredDetail();
+    renderAdminPredSelector();
+  }catch(e){showToast('❌ Error al guardar');}
+  btn.textContent='Guardar cambios del participante';btn.disabled=false;
+}
+
+// ---- DESCARGA PDF ----
+function downloadPDF(){
+  const p=allPlayers[player];
+  if(!p){showToast('No hay predicciones guardadas aún');return;}
+  const fecha=new Date().toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'});
+  const lw=p.lockedWeeks||{};
+
+  let html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>Quiniela ${player}</title>
+  <style>
+    body{font-family:Arial,sans-serif;padding:24px;max-width:700px;margin:0 auto;color:#1a1a1a;font-size:13px}
+    h1{font-size:20px;margin-bottom:4px}
+    .sub{color:#666;font-size:12px;margin-bottom:20px}
+    .week-title{font-size:15px;font-weight:700;margin:20px 0 8px;padding:6px 10px;background:#EAF3DE;border-left:4px solid #639922;border-radius:4px;color:#27500A}
+    .day{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin:12px 0 4px;border-bottom:1px solid #eee;padding-bottom:3px}
+    table{width:100%;border-collapse:collapse;margin-bottom:4px}
+    td{padding:6px 8px;border:0.5px solid #e0e0e0;font-size:12px;text-align:center}
+    td.home{text-align:right;width:35%}td.away{text-align:left;width:35%}
+    td.pred{background:#EAF3DE;color:#27500A;font-weight:700;width:30%}
+    td.nopred{background:#f9f9f9;color:#aaa;width:30%}
+    .group{font-size:10px;color:#aaa}
+    .footer{margin-top:24px;font-size:11px;color:#aaa;border-top:1px solid #eee;padding-top:10px;text-align:center}
+    .locked{color:#27500A;font-size:11px}
+    .pending{color:#BA7517;font-size:11px}
+    @media print{body{padding:12px}}
+  </style></head><body>
+  <h1>🏆 Quiniela Mundial 2026</h1>
+  <div class="sub">Usuario: <strong>${player}</strong> &nbsp;·&nbsp; Generado: ${fecha}</div>`;
+
+  WEEKS.forEach((w,wi)=>{
+    const weekPreds=(p.weeks&&p.weeks[wi])||{};
+    const isLocked=lw[wi];
+    html+=`<div class="week-title">${w.label} <span style="font-weight:400;font-size:12px">${w.range}</span> &nbsp; <span class="${isLocked?'locked':'pending'}">${isLocked?'✅ Enviada':'⏳ Pendiente'}</span></div>`;
+    w.days.forEach((d,di)=>{
+      html+=`<div class="day">${d.day}</div><table>`;
+      d.matches.forEach((m,mi)=>{
+        const id=mkId(wi,di,mi);
+        const pred=weekPreds[id]||'';
+        const predLabel=pred==='h'?m.h:pred==='a'?m.a:pred==='e'?'Empate':'—';
+        const hasPred=pred!=='';
+        html+=`<tr>
+          <td class="home">${fl(m.h)} ${m.h}</td>
+          <td class="${hasPred?'pred':'nopred'}">${hasPred?predLabel:'Sin elegir'}</td>
+          <td class="away">${fl(m.a)} ${m.a}</td>
+        </tr>`;
+      });
+      html+='</table>';
+    });
+  });
+
+  html+=`<div class="footer">Este documento es un comprobante de las predicciones registradas en la Quiniela Mundial 2026 — RIVALS.<br>Solo las semanas marcadas como ✅ Enviada están bloqueadas y son válidas.</div>
+  </body></html>`;
+
+  const win=window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(()=>win.print(),600);
+  showToast('📄 Abriendo PDF para guardar o imprimir');
 }
 
 initFb().then(()=>loadAll()).then(()=>{console.log('Firebase listo ✅');});
