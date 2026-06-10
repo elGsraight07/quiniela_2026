@@ -5,15 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Quiniela Mundial 2026</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>">
-
-<!-- SheetJS para exportar Excel -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-<!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyCVCio8okpuCwCPrGdV505XKoCi7UqJnD4",
   authDomain: "quiniela-mundial-2026-9ced4.firebaseapp.com",
@@ -23,22 +18,15 @@ const firebaseConfig = {
   messagingSenderId: "526922948967",
   appId: "1:526922948967:web:f8a1890420a6f91bef0fc2"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-window._db = db;
-window._dbRef = ref;
-window._dbSet = set;
-window._dbGet = get;
-window._dbUpdate = update;
-window._dbOnValue = onValue;
-window._firebaseReady = true;
-window.dispatchEvent(new Event('firebase-ready'));
+window._db=db;window._ref=ref;window._set=set;window._get=get;
+window._update=update;window._onValue=onValue;
+window._fbReady=true;window.dispatchEvent(new Event('fb-ready'));
 </script>
-
 <style>
-:root {
-  --bg:#ffffff;--bg2:#f5f5f3;--bg3:#efefec;
+:root{
+  --bg:#fff;--bg2:#f5f5f3;--bg3:#efefec;
   --text:#1a1a1a;--text2:#6b6b6b;--text3:#a0a0a0;
   --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.24);
   --r:10px;--rl:14px;
@@ -47,17 +35,15 @@ window.dispatchEvent(new Event('firebase-ready'));
   --bbg:#E6F1FB;--bb:#378ADD;--bt:#0C447C;
   --rbg:#FCEBEB;--rb:#E24B4A;--rt:#A32D2D;
 }
-@media(prefers-color-scheme:dark){
-  :root{
-    --bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;
-    --text:#f5f5f5;--text2:#aaaaaa;--text3:#666666;
-    --border:rgba(255,255,255,0.12);--border2:rgba(255,255,255,0.24);
-    --gbg:#1a2e0d;--gb:#3b6d11;--gt:#a8d575;
-    --abg:#2e1f05;--ab:#85500b;--at:#f5c97a;
-    --bbg:#0d1f35;--bb:#185fa5;--bt:#7ab8f5;
-    --rbg:#2e0d0d;--rb:#a32d2d;--rt:#f09595;
-  }
-}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;
+  --text:#f5f5f5;--text2:#aaa;--text3:#666;
+  --border:rgba(255,255,255,0.12);--border2:rgba(255,255,255,0.24);
+  --gbg:#1a2e0d;--gb:#3b6d11;--gt:#a8d575;
+  --abg:#2e1f05;--ab:#85500b;--at:#f5c97a;
+  --bbg:#0d1f35;--bb:#185fa5;--bt:#7ab8f5;
+  --rbg:#2e0d0d;--rt:#f09595;
+}}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh}
 .wrap{max-width:480px;margin:0 auto;background:var(--bg);min-height:100vh;padding:0 16px 60px}
@@ -67,28 +53,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sub{font-size:13px;color:var(--text2);margin-bottom:24px}
 .card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);padding:16px 18px;margin-bottom:12px}
 .lbl{font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:500}
-input[type=text],input[type=password]{
-  width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r);
-  font-size:15px;font-family:inherit;background:var(--bg);color:var(--text);
-  outline:none;margin-bottom:12px;-webkit-appearance:none
-}
+input[type=text],input[type=password]{width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r);font-size:15px;font-family:inherit;background:var(--bg);color:var(--text);outline:none;margin-bottom:12px;-webkit-appearance:none}
 input:focus{border-color:var(--gb);box-shadow:0 0 0 3px rgba(99,153,34,0.15)}
-.btn{
-  width:100%;padding:11px;border:0.5px solid var(--border2);border-radius:var(--r);
-  background:var(--bg);color:var(--text);font-size:14px;font-weight:500;
-  cursor:pointer;font-family:inherit;margin-bottom:8px;transition:background 0.15s
-}
+.btn{width:100%;padding:11px;border:0.5px solid var(--border2);border-radius:var(--r);background:var(--bg);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-bottom:8px;transition:background 0.15s}
 .btn:hover{background:var(--bg2)}.btn:active{opacity:0.8}
 .btn-primary{background:var(--gbg);border-color:var(--gb);color:var(--gt)}
 .btn-primary:hover{filter:brightness(0.95)}
 .btn-blue{background:var(--bbg);border-color:var(--bb);color:var(--bt)}
-.btn-blue:hover{filter:brightness(0.95)}
 .btn-sm{width:auto;padding:7px 14px;font-size:12px;font-weight:400}
 .btn-ghost{color:var(--text3);border-color:var(--border);font-size:12px}
 .err{font-size:12px;color:var(--rt);margin-bottom:8px;min-height:16px}
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
-.tab{padding:7px 12px;border:0.5px solid var(--border2);border-radius:var(--r);font-size:12px;cursor:pointer;background:var(--bg);color:var(--text2);font-family:inherit}
-.tab.active{background:var(--bg2);color:var(--text);font-weight:500}
+.week-tabs{display:flex;gap:8px;margin-bottom:20px}
+.week-tab{flex:1;padding:12px 6px;border:0.5px solid var(--border2);border-radius:var(--rl);font-size:12px;cursor:pointer;background:var(--bg);color:var(--text2);font-family:inherit;text-align:center;line-height:1.4;position:relative;transition:background 0.15s}
+.week-tab.active{background:var(--bg2);color:var(--text);font-weight:600;border-color:var(--border2)}
+.week-tab.locked-tab{border-color:var(--gb)}
+.week-tab .wk-status{font-size:10px;margin-top:3px;display:block}
+.week-tab .wk-badge{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--gb);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700}
 .wsec{display:none}.wsec.active{display:block}
 .day-lbl{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.07em;margin:14px 0 7px;padding-bottom:5px;border-bottom:0.5px solid var(--border)}
 .match{display:grid;grid-template-columns:1fr 72px 1fr;border:0.5px solid var(--border);border-radius:var(--rl);margin-bottom:7px;overflow:hidden;background:var(--bg)}
@@ -114,23 +94,44 @@ input:focus{border-color:var(--gb);box-shadow:0 0 0 3px rgba(99,153,34,0.15)}
 .banner{border-radius:var(--r);padding:11px 14px;margin-bottom:14px;font-size:13px;display:flex;align-items:center;gap:8px}
 .banner-green{background:var(--gbg);border:0.5px solid var(--gb);color:var(--gt)}
 .banner-blue{background:var(--bbg);border:0.5px solid var(--bb);color:var(--bt)}
+.banner-amber{background:var(--abg);border:0.5px solid var(--ab);color:var(--at)}
+.submit-week{padding:14px 0}
+.instrucciones-box{background:var(--bbg);border:0.5px solid var(--bb);border-radius:var(--rl);padding:14px 16px;margin-bottom:16px}
+.user-rules-box{background:var(--abg);border:0.5px solid var(--ab);border-radius:var(--rl);padding:14px 16px;margin-bottom:16px}
+.ur-title{font-size:13px;font-weight:600;color:var(--at);margin-bottom:10px}
+.ur-item{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.5}
+.ur-item:last-child{margin-bottom:0}
+.ur-item span strong{color:var(--text);font-weight:600}
+.ur-item span em{color:var(--bt);font-style:normal;font-weight:600;background:var(--bbg);padding:1px 6px;border-radius:4px}
+.user-preview{font-size:13px;color:var(--gt);background:var(--gbg);border-radius:var(--r);padding:7px 10px;margin-bottom:10px;font-weight:500}
+.inst-title{font-size:13px;font-weight:600;color:var(--bt);margin-bottom:10px}
+.inst-item{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--text2);margin-bottom:7px;line-height:1.5}
+.inst-item:last-child{margin-bottom:0}
+.inst-item span strong{color:var(--text);font-weight:600}
+.inst-item span em{color:var(--at);font-style:normal;font-weight:500}
+/* SCOREBOARD */
 .sb-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:0.5px solid var(--border)}
 .sb-row:last-child{border-bottom:none}
 .sb-pos{font-size:18px;min-width:28px;text-align:center}
-.sb-av{width:36px;height:36px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--text2);flex-shrink:0}
+.sb-av{width:36px;height:36px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--text2);flex-shrink:0;position:relative}
+.paid-ring{border:2px solid var(--gb)}
+.paid-dot{position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:var(--gb);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:8px;line-height:1}
 .sb-info{flex:1;min-width:0}
-.sb-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sb-detail{font-size:11px;color:var(--text2);margin-top:1px}
+.sb-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:5px}
+.paid-badge{font-size:10px;background:var(--gbg);color:var(--gt);padding:2px 6px;border-radius:99px;font-weight:500;white-space:nowrap}
+.unpaid-badge{font-size:10px;background:var(--rbg);color:var(--rt);padding:2px 6px;border-radius:99px;font-weight:500;white-space:nowrap}
+.sb-detail{font-size:11px;color:var(--text2);margin-top:2px}
 .sb-score{text-align:right;flex-shrink:0}
 .sb-pts{font-size:20px;font-weight:600;color:var(--text)}
 .sb-ptslbl{font-size:10px;color:var(--text2)}
 .empty{text-align:center;padding:3rem 0;color:var(--text3);font-size:14px;line-height:2.2}
-.nav{display:flex;gap:6px;margin-bottom:16px;border-bottom:0.5px solid var(--border);padding-bottom:10px}
-.nav-btn{padding:6px 13px;border:none;background:transparent;font-size:13px;cursor:pointer;color:var(--text2);font-family:inherit;border-radius:var(--r)}
+.nav{display:flex;gap:6px;margin-bottom:16px;border-bottom:0.5px solid var(--border);padding-bottom:10px;flex-wrap:wrap}
+.nav-btn{padding:6px 12px;border:none;background:transparent;font-size:13px;cursor:pointer;color:var(--text2);font-family:inherit;border-radius:var(--r)}
 .nav-btn.active{background:var(--bg2);color:var(--text);font-weight:500}
 .badge{display:inline-block;font-size:10px;padding:3px 8px;border-radius:99px}
 .badge-done{background:var(--gbg);color:var(--gt)}
 .badge-wait{background:var(--bg2);color:var(--text2)}
+/* ADMIN matches */
 .admin-match{display:grid;grid-template-columns:1fr 72px 1fr;border:0.5px solid var(--border);border-radius:var(--rl);margin-bottom:7px;overflow:hidden;background:var(--bg)}
 .atbtn{padding:9px 4px;cursor:pointer;border:none;background:transparent;font-family:inherit;font-size:11px;color:var(--text);width:100%;display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1.3;transition:background 0.12s}
 .atbtn.home{border-right:0.5px solid var(--border)}
@@ -139,15 +140,30 @@ input:focus{border-color:var(--gb);box-shadow:0 0 0 3px rgba(99,153,34,0.15)}
 .atbtn.sel{background:var(--bbg);font-weight:600;color:var(--bt)}
 .aempbtn{padding:4px 6px;border:0.5px solid var(--border2);border-radius:var(--r);font-size:10px;cursor:pointer;background:var(--bg);color:var(--text2);font-family:inherit;white-space:nowrap}
 .aempbtn.sel{background:var(--abg);border-color:var(--ab);color:var(--at);font-weight:600}
+.admin-tabs-sm{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.atab{padding:6px 12px;border:0.5px solid var(--border2);border-radius:var(--r);font-size:12px;cursor:pointer;background:var(--bg);color:var(--text2);font-family:inherit}
+.atab.active{background:var(--bg2);color:var(--text);font-weight:500}
+/* PAGOS */
+.pay-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.pay-row:last-child{border-bottom:none}
+.pay-av{width:34px;height:34px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text2);flex-shrink:0}
+.pay-av.paid{background:var(--gbg);color:var(--gt);border:1.5px solid var(--gb)}
+.pay-info{flex:1;min-width:0}
+.pay-name{font-size:13px;font-weight:500;color:var(--text)}
+.pay-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.toggle-pay{padding:6px 14px;border-radius:99px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;border:1.5px solid;transition:all 0.15s}
+.toggle-pay.is-paid{background:var(--gbg);border-color:var(--gb);color:var(--gt)}
+.toggle-pay.not-paid{background:var(--rbg);border-color:var(--rb);color:var(--rt)}
+/* resumen pagos */
+.pay-summary{display:flex;gap:8px;margin-bottom:16px}
+.pay-stat{flex:1;background:var(--bg2);border-radius:var(--r);padding:10px;text-align:center}
+.pay-stat-num{font-size:20px;font-weight:600;color:var(--text)}
+.pay-stat-lbl{font-size:11px;color:var(--text2);margin-top:2px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;z-index:999}
 .toast.show{opacity:1}
 .loading{text-align:center;padding:3rem 0;color:var(--text3);font-size:14px}
 .spinner{display:inline-block;width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--gb);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.match-result{position:relative}
-.result-dot{width:7px;height:7px;border-radius:50%;position:absolute;top:6px;right:6px}
-.dot-green{background:var(--gb)}
-.dot-none{background:var(--border2)}
 </style>
 </head>
 <body>
@@ -157,12 +173,21 @@ input:focus{border-color:var(--gb);box-shadow:0 0 0 3px rgba(99,153,34,0.15)}
 <div id="s-home" class="screen active">
 <div class="page">
   <div class="logo">🏆 Quiniela Mundial 2026</div>
-  <div class="sub">Fase de grupos · 72 partidos · Adivina los resultados</div>
+  <div class="sub">Fase de grupos · 72 partidos · Llena semana por semana</div>
+
+  <div class="user-rules-box">
+    <div class="ur-title">⚠️ Lee esto antes de entrar</div>
+    <div class="ur-item">👤 <span>Ingresa siempre con el <strong>mismo nombre de usuario</strong>. Si lo cambias, el sistema te registrará como una persona diferente y perderás tus predicciones.</span></div>
+    <div class="ur-item">🔠 <span>Tu usuario debe estar en <strong>MAYÚSCULAS</strong> y contener <strong>al menos 2 números</strong>. Ejemplo: <em>JUAN99</em> o <em>GARCIA24</em></span></div>
+    <div class="ur-item">📵 <span>No compartas tu usuario con nadie. Solo tú puedes llenar tu quiniela.</span></div>
+  </div>
+
   <div class="card">
-    <div class="lbl">Tu nombre</div>
-    <input type="text" id="inp-name" placeholder="Escribe tu nombre..." maxlength="30" autocomplete="off">
+    <div class="lbl">Tu usuario</div>
+    <input type="text" id="inp-name" placeholder="Ej: GARCIA24" maxlength="20" autocomplete="off" autocapitalize="characters" oninput="formatUser(this)">
+    <div class="user-preview" id="user-preview" style="display:none"></div>
     <div class="err" id="err-home"></div>
-    <button class="btn btn-primary" onclick="goPlay()">Entrar a la quiniela ›</button>
+    <button class="btn btn-primary" onclick="goPlay()">Entrar a mi quiniela ›</button>
   </div>
   <button class="btn" onclick="goSb()">📊 Ver scoreboard en tiempo real</button>
   <button class="btn btn-ghost" onclick="goAdminLogin()">🔒 Modo admin</button>
@@ -174,25 +199,14 @@ input:focus{border-color:var(--gb);box-shadow:0 0 0 3px rgba(99,153,34,0.15)}
 <div class="sticky-head">
   <div class="topbar" style="margin-bottom:0;padding-bottom:10px">
     <div>
-      <div style="font-size:14px;font-weight:600;color:var(--text)" id="play-name"></div>
+      <div style="font-size:14px;font-weight:600" id="play-name"></div>
       <div style="font-size:11px;color:var(--text2)" id="play-sub"></div>
     </div>
     <button class="btn btn-sm" onclick="showScreen('s-home')">Salir</button>
   </div>
-  <div class="prog" style="margin-bottom:8px">
-    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
-    <div class="prog-txt" id="prog-txt">0 / 72</div>
-  </div>
-  <div class="tabs" id="play-tabs" style="margin-bottom:0;padding-bottom:10px"></div>
+  <div class="week-tabs" id="week-tabs"></div>
 </div>
-<div style="padding-top:12px">
-  <div class="banner banner-green" id="locked-banner" style="display:none">🔒 Tus predicciones están enviadas y bloqueadas.</div>
-  <div id="play-weeks"></div>
-  <div id="submit-area" style="padding:1rem 0">
-    <div class="err" id="err-play"></div>
-    <button class="btn btn-primary" onclick="submitPreds()">Enviar mis predicciones ›</button>
-  </div>
-</div>
+<div style="padding-top:12px" id="play-body"></div>
 </div>
 
 <!-- SCOREBOARD -->
@@ -211,7 +225,7 @@ input:focus{border-color:var(--gb);box-shadow:0 0 0 3px rgba(99,153,34,0.15)}
 <div id="s-admin-login" class="screen">
 <div class="page">
   <div class="logo" style="font-size:18px">🔒 Modo admin</div>
-  <div class="sub">Solo tú puedes ingresar los resultados reales</div>
+  <div class="sub">Gestiona resultados y pagos</div>
   <div class="card">
     <div class="lbl">Contraseña</div>
     <input type="password" id="inp-pw" placeholder="Contraseña...">
@@ -231,49 +245,48 @@ input:focus{border-color:var(--gb);box-shadow:0 0 0 3px rgba(99,153,34,0.15)}
   </div>
   <div class="nav">
     <button class="nav-btn active" id="anav-r" onclick="adminTab('r')">Resultados</button>
+    <button class="nav-btn" id="anav-pagos" onclick="adminTab('pagos')">💰 Pagos</button>
     <button class="nav-btn" id="anav-p" onclick="adminTab('p')">Participantes</button>
   </div>
+
+  <!-- Resultados -->
   <div id="admin-r-panel">
-    <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Selecciona el ganador de cada partido. Puedes modificar y guardar cuantas veces necesites.</p>
-    <div class="tabs" id="admin-tabs"></div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Puedes modificar los resultados cuantas veces necesites.</p>
+    <div class="admin-tabs-sm" id="admin-wtabs"></div>
     <div id="admin-weeks"></div>
     <div style="padding:1rem 0">
-      <button class="btn btn-primary" onclick="saveResults()" id="btn-save-results">Guardar y recalcular scores</button>
+      <button class="btn btn-primary" onclick="saveResults()" id="btn-save">Guardar y recalcular scores</button>
     </div>
   </div>
+
+  <!-- Pagos -->
+  <div id="admin-pagos-panel" style="display:none">
+    <div class="pay-summary" id="pay-summary"></div>
+    <div id="pay-list"></div>
+    <div style="padding:1rem 0">
+      <button class="btn btn-blue" onclick="exportExcel()">📥 Descargar Excel</button>
+    </div>
+  </div>
+
+  <!-- Participantes -->
   <div id="admin-p-panel" style="display:none">
     <div style="margin-bottom:12px">
-      <button class="btn btn-blue btn-sm" onclick="exportExcel()" style="width:100%">📥 Descargar Excel con todas las predicciones</button>
+      <button class="btn btn-blue" onclick="exportExcel()">📥 Descargar Excel con todas las predicciones</button>
     </div>
     <div id="admin-p-list"></div>
   </div>
 </div>
 </div>
 
-</div><!-- /wrap -->
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
-const ADMIN_PW = 'Mundial2026';
-const TOTAL = 72;
+const ADMIN_PW='Mundial2026';
+const FLAGS={'México':'🇲🇽','Sudáfrica':'🇿🇦','Corea del Sur':'🇰🇷','Rep. Checa':'🇨🇿','Canadá':'🇨🇦','Bosnia y Herz.':'🇧🇦','EE.UU.':'🇺🇸','Paraguay':'🇵🇾','Qatar':'🇶🇦','Suiza':'🇨🇭','Brasil':'🇧🇷','Marruecos':'🇲🇦','Haití':'🇭🇹','Escocia':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Australia':'🇦🇺','Turquía':'🇹🇷','Alemania':'🇩🇪','Curazao':'🇨🇼','Países Bajos':'🇳🇱','Japón':'🇯🇵','Costa de Marfil':'🇨🇮','Ecuador':'🇪🇨','Suecia':'🇸🇪','Túnez':'🇹🇳','España':'🇪🇸','Cabo Verde':'🇨🇻','Bélgica':'🇧🇪','Egipto':'🇪🇬','Arabia Saudita':'🇸🇦','Uruguay':'🇺🇾','Irán':'🇮🇷','Nueva Zelanda':'🇳🇿','Francia':'🇫🇷','Senegal':'🇸🇳','Irak':'🇮🇶','Noruega':'🇳🇴','Argentina':'🇦🇷','Argelia':'🇩🇿','Austria':'🇦🇹','Jordania':'🇯🇴','Portugal':'🇵🇹','RD del Congo':'🇨🇩','Inglaterra':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Croacia':'🇭🇷','Ghana':'🇬🇭','Panamá':'🇵🇦','Uzbekistán':'🇺🇿','Colombia':'🇨🇴'};
 
-const FLAGS = {
-  'México':'🇲🇽','Sudáfrica':'🇿🇦','Corea del Sur':'🇰🇷','Rep. Checa':'🇨🇿',
-  'Canadá':'🇨🇦','Bosnia y Herz.':'🇧🇦','EE.UU.':'🇺🇸','Paraguay':'🇵🇾',
-  'Qatar':'🇶🇦','Suiza':'🇨🇭','Brasil':'🇧🇷','Marruecos':'🇲🇦',
-  'Haití':'🇭🇹','Escocia':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Australia':'🇦🇺','Turquía':'🇹🇷',
-  'Alemania':'🇩🇪','Curazao':'🇨🇼','Países Bajos':'🇳🇱','Japón':'🇯🇵',
-  'Costa de Marfil':'🇨🇮','Ecuador':'🇪🇨','Suecia':'🇸🇪','Túnez':'🇹🇳',
-  'España':'🇪🇸','Cabo Verde':'🇨🇻','Bélgica':'🇧🇪','Egipto':'🇪🇬',
-  'Arabia Saudita':'🇸🇦','Uruguay':'🇺🇾','Irán':'🇮🇷','Nueva Zelanda':'🇳🇿',
-  'Francia':'🇫🇷','Senegal':'🇸🇳','Irak':'🇮🇶','Noruega':'🇳🇴',
-  'Argentina':'🇦🇷','Argelia':'🇩🇿','Austria':'🇦🇹','Jordania':'🇯🇴',
-  'Portugal':'🇵🇹','RD del Congo':'🇨🇩','Inglaterra':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Croacia':'🇭🇷',
-  'Ghana':'🇬🇭','Panamá':'🇵🇦','Uzbekistán':'🇺🇿','Colombia':'🇨🇴',
-};
-
-const WEEKS = [
-  {label:'Sem. 1',range:'11–17 jun',days:[
+const WEEKS=[
+  {label:'Semana 1',short:'Sem. 1',range:'11–17 jun',total:14,days:[
     {day:'Jue 11 jun',matches:[{h:'México',a:'Sudáfrica',g:'A'},{h:'Corea del Sur',a:'Rep. Checa',g:'A'}]},
     {day:'Vie 12 jun',matches:[{h:'Canadá',a:'Bosnia y Herz.',g:'B'},{h:'EE.UU.',a:'Paraguay',g:'D'}]},
     {day:'Sáb 13 jun',matches:[{h:'Qatar',a:'Suiza',g:'B'},{h:'Brasil',a:'Marruecos',g:'C'},{h:'Haití',a:'Escocia',g:'C'},{h:'Australia',a:'Turquía',g:'D'}]},
@@ -282,7 +295,7 @@ const WEEKS = [
     {day:'Mar 16 jun',matches:[{h:'Francia',a:'Senegal',g:'I'},{h:'Irak',a:'Noruega',g:'I'},{h:'Argentina',a:'Argelia',g:'J'},{h:'Austria',a:'Jordania',g:'J'}]},
     {day:'Mié 17 jun',matches:[{h:'Portugal',a:'RD del Congo',g:'K'},{h:'Inglaterra',a:'Croacia',g:'L'},{h:'Ghana',a:'Panamá',g:'L'},{h:'Uzbekistán',a:'Colombia',g:'K'}]},
   ]},
-  {label:'Sem. 2',range:'18–23 jun',days:[
+  {label:'Semana 2',short:'Sem. 2',range:'18–23 jun',total:24,days:[
     {day:'Jue 18 jun',matches:[{h:'Rep. Checa',a:'Sudáfrica',g:'A'},{h:'Suiza',a:'Bosnia y Herz.',g:'B'},{h:'Canadá',a:'Qatar',g:'B'},{h:'México',a:'Corea del Sur',g:'A'}]},
     {day:'Vie 19 jun',matches:[{h:'EE.UU.',a:'Australia',g:'D'},{h:'Escocia',a:'Marruecos',g:'C'},{h:'Brasil',a:'Haití',g:'C'},{h:'Turquía',a:'Paraguay',g:'D'}]},
     {day:'Sáb 20 jun',matches:[{h:'Países Bajos',a:'Suecia',g:'F'},{h:'Alemania',a:'Costa de Marfil',g:'E'},{h:'Ecuador',a:'Curazao',g:'E'},{h:'Túnez',a:'Japón',g:'F'}]},
@@ -290,7 +303,7 @@ const WEEKS = [
     {day:'Lun 22 jun',matches:[{h:'Argentina',a:'Austria',g:'J'},{h:'Francia',a:'Irak',g:'I'},{h:'Noruega',a:'Senegal',g:'I'},{h:'Jordania',a:'Argelia',g:'J'}]},
     {day:'Mar 23 jun',matches:[{h:'Portugal',a:'Uzbekistán',g:'K'},{h:'Inglaterra',a:'Ghana',g:'L'},{h:'Panamá',a:'Croacia',g:'L'},{h:'Colombia',a:'RD del Congo',g:'K'}]},
   ]},
-  {label:'Sem. 3',range:'24–27 jun',days:[
+  {label:'Semana 3',short:'Sem. 3',range:'24–27 jun',total:24,days:[
     {day:'Mié 24 jun',matches:[{h:'Suiza',a:'Canadá',g:'B'},{h:'Bosnia y Herz.',a:'Qatar',g:'B'},{h:'Marruecos',a:'Haití',g:'C'},{h:'Escocia',a:'Brasil',g:'C'},{h:'Paraguay',a:'Australia',g:'D'},{h:'Turquía',a:'EE.UU.',g:'D'},{h:'Rep. Checa',a:'México',g:'A'},{h:'Sudáfrica',a:'Corea del Sur',g:'A'}]},
     {day:'Jue 25 jun',matches:[{h:'Costa de Marfil',a:'Curazao',g:'E'},{h:'Ecuador',a:'Alemania',g:'E'},{h:'Japón',a:'Países Bajos',g:'F'},{h:'Túnez',a:'Suecia',g:'F'},{h:'Egipto',a:'Bélgica',g:'G'},{h:'Nueva Zelanda',a:'Irán',g:'G'},{h:'Cabo Verde',a:'España',g:'H'},{h:'Uruguay',a:'Arabia Saudita',g:'H'}]},
     {day:'Vie 26 jun',matches:[{h:'Senegal',a:'Francia',g:'I'},{h:'Noruega',a:'Irak',g:'I'},{h:'Argelia',a:'Argentina',g:'J'},{h:'Austria',a:'Jordania',g:'J'},{h:'RD del Congo',a:'Portugal',g:'K'},{h:'Colombia',a:'Uzbekistán',g:'K'},{h:'Croacia',a:'Inglaterra',g:'L'},{h:'Ghana',a:'Panamá',g:'L'}]},
@@ -299,276 +312,315 @@ const WEEKS = [
 
 function fl(t){return FLAGS[t]||'🏳️';}
 function mkId(wi,di,mi){return wi+'_'+di+'_'+mi;}
-function getAllIds(){const ids=[];WEEKS.forEach((w,wi)=>w.days.forEach((d,di)=>d.matches.forEach((_,mi)=>ids.push(mkId(wi,di,mi)))));return ids;}
-function getMatch(id){const[wi,di,mi]=id.split('_').map(Number);return WEEKS[wi].days[di].matches[mi];}
 function initials(n){return n.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 
-let player=null, preds={}, isLocked=false;
-let allPlayers={}, realResults={};
-let db, dbRef, dbSet, dbGet, dbUpdate, dbOnValue;
-let sbUnsubscribe=null;
+let player=null;
+let preds=[{},{},{}];
+let locked=[false,false,false];
+let allPlayers={}, realResults={}, payments={};
+let db,dbRef,dbSet,dbGet,dbUpdate,dbOnValue;
+let currentWeek=0, adminWeek=0;
+let sbUnsub=null;
 
-// Esperar Firebase
-function waitFirebase(){
-  return new Promise(resolve=>{
-    if(window._firebaseReady){resolve();}
-    else{window.addEventListener('firebase-ready',resolve,{once:true});}
-  });
+function waitFb(){return new Promise(r=>{if(window._fbReady)r();else window.addEventListener('fb-ready',r,{once:true});});}
+async function initFb(){await waitFb();db=window._db;dbRef=window._ref;dbSet=window._set;dbGet=window._get;dbUpdate=window._update;dbOnValue=window._onValue;}
+
+async function loadAll(){
+  await initFb();
+  try{const s=await dbGet(dbRef(db,'players'));allPlayers=s.exists()?s.val():{};}catch(e){allPlayers={};}
+  try{const s=await dbGet(dbRef(db,'results'));realResults=s.exists()?s.val():{};}catch(e){realResults={};}
+  try{const s=await dbGet(dbRef(db,'payments'));payments=s.exists()?s.val():{};}catch(e){payments={};}
 }
 
-async function initFirebase(){
-  await waitFirebase();
-  db=window._db; dbRef=window._dbRef; dbSet=window._dbSet;
-  dbGet=window._dbGet; dbUpdate=window._dbUpdate; dbOnValue=window._dbOnValue;
-}
-
-async function loadAllData(){
-  await initFirebase();
-  try{
-    const snap=await dbGet(dbRef(db,'players'));
-    allPlayers=snap.exists()?snap.val():{};
-  }catch(e){allPlayers={};}
-  try{
-    const snap=await dbGet(dbRef(db,'results'));
-    realResults=snap.exists()?snap.val():{};
-  }catch(e){realResults={};}
-}
+function getWeekIds(wi){const ids=[];WEEKS[wi].days.forEach((d,di)=>d.matches.forEach((_,mi)=>ids.push(mkId(wi,di,mi))));return ids;}
+function getAllIds(){return[0,1,2].flatMap(wi=>getWeekIds(wi));}
 
 function calcScores(){
   const ids=getAllIds();
   const possible=ids.filter(id=>realResults[id]).length;
   Object.values(allPlayers).forEach(p=>{
     let s=0;
-    ids.forEach(id=>{if(realResults[id]&&p.preds&&p.preds[id]&&realResults[id]===p.preds[id])s++;});
-    p.score=s; p.possible=possible;
+    const allPreds={...((p.weeks||{})[0]||{}), ...((p.weeks||{})[1]||{}), ...((p.weeks||{})[2]||{})};
+    ids.forEach(id=>{if(realResults[id]&&allPreds[id]&&realResults[id]===allPreds[id])s++;});
+    p.score=s;p.possible=possible;
   });
+}
+
+function formatUser(input){
+  // Forzar mayúsculas y solo letras/números
+  const val=input.value.toUpperCase().replace(/[^A-Z0-9ÁÉÍÓÚÜÑ]/g,'');
+  input.value=val;
+  const prev=document.getElementById('user-preview');
+  if(val.length>0){
+    const nums=(val.match(/[0-9]/g)||[]).length;
+    const valid=val.length>=3&&nums>=2;
+    prev.style.display='block';
+    prev.style.background=valid?'var(--gbg)':'var(--rbg)';
+    prev.style.color=valid?'var(--gt)':'var(--rt)';
+    prev.style.border=valid?'0.5px solid var(--gb)':'0.5px solid var(--rb)';
+    if(valid) prev.textContent='✅ Usuario válido: '+val;
+    else if(nums<2) prev.textContent='⚠️ Faltan números — necesitas al menos 2 (tienes '+nums+')';
+    else prev.textContent='⚠️ El usuario debe tener al menos 3 caracteres';
+  } else {
+    prev.style.display='none';
+  }
 }
 
 // HOME
 function goPlay(){
-  const name=document.getElementById('inp-name').value.trim();
-  if(!name){document.getElementById('err-home').textContent='Escribe tu nombre para continuar.';return;}
-  document.getElementById('err-home').textContent='';
-  player=name;
+  const raw=document.getElementById('inp-name').value.toUpperCase().replace(/[^A-Z0-9ÁÉÍÓÚÜÑ]/g,'').trim();
+  document.getElementById('inp-name').value=raw;
+  const errEl=document.getElementById('err-home');
+  if(!raw){errEl.textContent='Escribe tu usuario para continuar.';return;}
+  if(raw.length<3){errEl.textContent='El usuario debe tener al menos 3 caracteres.';return;}
+  const nums=(raw.match(/[0-9]/g)||[]).length;
+  if(nums<2){errEl.textContent=`Tu usuario necesita al menos 2 números (tienes ${nums}). Ejemplo: GARCIA24`;return;}
+  errEl.textContent='';
+  player=raw;
   const ex=allPlayers[name];
-  if(ex&&ex.locked){preds={...(ex.preds||{})};isLocked=true;}
-  else{preds={};isLocked=false;}
-  renderPlay(); showScreen('s-play');
+  if(ex&&ex.weeks){
+    preds=[{...(ex.weeks[0]||{})},{...(ex.weeks[1]||{})},{...(ex.weeks[2]||{})}];
+    locked=[!!(ex.lockedWeeks&&ex.lockedWeeks[0]),!!(ex.lockedWeeks&&ex.lockedWeeks[1]),!!(ex.lockedWeeks&&ex.lockedWeeks[2])];
+  } else {preds=[{},{},{}];locked=[false,false,false];}
+  currentWeek=0;renderPlay();showScreen('s-play');
 }
 
-// PLAY
 function renderPlay(){
   document.getElementById('play-name').textContent=player;
-  document.getElementById('locked-banner').style.display=isLocked?'flex':'none';
-  document.getElementById('submit-area').style.display=isLocked?'none':'block';
-  renderPlayTabs(); renderPlayWeeks(); updateProg();
+  renderWeekTabs();renderWeekBody();
 }
 
-function renderPlayTabs(){
-  document.getElementById('play-tabs').innerHTML=WEEKS.map((w,i)=>
-    `<button class="tab${i===0?' active':''}" onclick="switchPlayTab(${i})">${w.label} <span style="font-size:10px;font-weight:400;opacity:0.7">${w.range}</span></button>`
-  ).join('');
-}
-
-function renderPlayWeeks(){
-  document.getElementById('play-weeks').innerHTML=WEEKS.map((w,wi)=>{
-    const days=w.days.map((d,di)=>{
-      const rows=d.matches.map((m,mi)=>{
-        const id=mkId(wi,di,mi);const sel=preds[id]||'';const dis=isLocked?'disabled':'';
-        return `<div class="match">
-          <button class="tbtn home${sel==='h'?' sel':''}" id="ph_${id}" onclick="pickPlay('${id}','h')" ${dis}>
-            <span class="flag">${fl(m.h)}</span><span>${m.h}</span>
-          </button>
-          <div class="mid">
-            <span class="gtag">Gr.${m.g}</span>
-            <button class="empbtn${sel==='e'?' sel':''}" id="pe_${id}" onclick="pickPlay('${id}','e')" ${dis}>Empate</button>
-          </div>
-          <button class="tbtn away${sel==='a'?' sel':''}" id="pa_${id}" onclick="pickPlay('${id}','a')" ${dis}>
-            <span class="flag">${fl(m.a)}</span><span>${m.a}</span>
-          </button>
-        </div>`;
-      }).join('');
-      return `<div><div class="day-lbl">${d.day}</div>${rows}</div>`;
-    }).join('');
-    return `<div class="wsec${wi===0?' active':''}" id="pw_${wi}">${days}</div>`;
+function renderWeekTabs(){
+  document.getElementById('week-tabs').innerHTML=WEEKS.map((w,wi)=>{
+    const lk=locked[wi];
+    const done=Object.keys(preds[wi]).length;
+    return `<button class="week-tab${wi===currentWeek?' active':''}${lk?' locked-tab':''}" onclick="switchWeek(${wi})">
+      ${lk?'<div class="wk-badge">✓</div>':''}
+      <strong>${w.short}</strong>
+      <span class="wk-status">${lk?'✅ Enviada':done+'/'+w.total+' listos'}</span>
+    </button>`;
   }).join('');
 }
 
-function switchPlayTab(i){
-  document.querySelectorAll('#play-tabs .tab').forEach((t,idx)=>t.classList.toggle('active',idx===i));
-  document.querySelectorAll('#play-weeks .wsec').forEach((s,idx)=>s.classList.toggle('active',idx===i));
+function renderWeekBody(){
+  const wi=currentWeek;const w=WEEKS[wi];const lk=locked[wi];
+  const done=Object.keys(preds[wi]).length;const total=w.total;
+  let html='';
+  if(lk) html+=`<div class="banner banner-green">🔒 ${w.label} enviada y bloqueada.</div>`;
+  if(!lk) html+=`
+    <div class="instrucciones-box">
+      <div class="inst-title">📋 ¿Cómo llenar tu quiniela?</div>
+      <div class="inst-item">1️⃣ <span>En cada partido, toca el <strong>país que crees que va a ganar</strong> — se resaltará en verde.</span></div>
+      <div class="inst-item">🤝 <span>Si crees que el partido terminará en <strong>empate</strong>, toca el botón <em>"Empate"</em> del centro.</span></div>
+      <div class="inst-item">✅ <span>Cuando hayas elegido en todos los partidos, toca <strong>"Enviar ${w.short}"</strong> al final de la página.</span></div>
+      <div class="inst-item">🔒 <span>Una vez enviadas, tus predicciones quedan <strong>bloqueadas</strong> y no podrán modificarse.</span></div>
+    </div>
+    <div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:${Math.round(done/total*100)}%" id="pf-${wi}"></div></div><div class="prog-txt" id="pt-${wi}">${done} / ${total}</div></div>`;
+  w.days.forEach((d,di)=>{
+    html+=`<div><div class="day-lbl">${d.day}</div>`;
+    d.matches.forEach((m,mi)=>{
+      const id=mkId(wi,di,mi);const sel=preds[wi][id]||'';const dis=lk?'disabled':'';
+      html+=`<div class="match">
+        <button class="tbtn home${sel==='h'?' sel':''}" id="ph_${id}" onclick="pick(${wi},'${id}','h')" ${dis}><span class="flag">${fl(m.h)}</span><span>${m.h}</span></button>
+        <div class="mid"><span class="gtag">Gr.${m.g}</span><button class="empbtn${sel==='e'?' sel':''}" id="pe_${id}" onclick="pick(${wi},'${id}','e')" ${dis}>Empate</button></div>
+        <button class="tbtn away${sel==='a'?' sel':''}" id="pa_${id}" onclick="pick(${wi},'${id}','a')" ${dis}><span class="flag">${fl(m.a)}</span><span>${m.a}</span></button>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  if(!lk) html+=`<div class="submit-week">
+    <div style="background:var(--abg);border:0.5px solid var(--ab);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--at);display:flex;gap:8px;align-items:center">
+      <span style="font-size:16px">⚠️</span>
+      <span>Una vez que envíes, tus predicciones quedarán <strong>bloqueadas para siempre</strong>. Revisa bien antes de continuar.</span>
+    </div>
+    <div class="err" id="ew-${wi}"></div>
+    <button class="btn btn-primary" id="bs-${wi}" onclick="submitWeek(${wi})" style="font-size:15px;padding:14px">
+      Enviar predicciones de ${w.short} 🔒
+    </button>
+  </div>`;
+  else if(wi+1<3&&!locked[wi+1]) html+=`<div class="submit-week"><button class="btn banner-blue" style="border:0.5px solid var(--bb);color:var(--bt)" onclick="switchWeek(${wi+1})">Ir a ${WEEKS[wi+1].short} →</button></div>`;
+  else if(wi===2&&locked[0]&&locked[1]&&locked[2]) html+=`<div class="banner banner-green" style="margin-top:16px">🏆 ¡Completaste toda la quiniela!</div>`;
+  document.getElementById('play-body').innerHTML=html;
+  document.getElementById('play-sub').textContent=locked.filter(Boolean).length+' de 3 semanas enviadas';
 }
 
-function pickPlay(id,val){
-  if(isLocked)return;
-  if(preds[id]===val)delete preds[id]; else preds[id]=val;
-  const sel=preds[id]||'';
-  const hb=document.getElementById('ph_'+id);
-  const ab=document.getElementById('pa_'+id);
-  const eb=document.getElementById('pe_'+id);
+function switchWeek(wi){currentWeek=wi;renderWeekTabs();renderWeekBody();window.scrollTo(0,80);}
+
+function pick(wi,id,val){
+  if(locked[wi])return;
+  if(preds[wi][id]===val)delete preds[wi][id]; else preds[wi][id]=val;
+  const sel=preds[wi][id]||'';
+  const hb=document.getElementById('ph_'+id),ab=document.getElementById('pa_'+id),eb=document.getElementById('pe_'+id);
   if(hb)hb.className='tbtn home'+(sel==='h'?' sel':'');
   if(ab)ab.className='tbtn away'+(sel==='a'?' sel':'');
   if(eb)eb.className='empbtn'+(sel==='e'?' sel':'');
-  updateProg();
+  const done=Object.keys(preds[wi]).length,total=WEEKS[wi].total;
+  const pf=document.getElementById('pf-'+wi),pt=document.getElementById('pt-'+wi);
+  if(pf)pf.style.width=Math.round(done/total*100)+'%';
+  if(pt)pt.textContent=done+' / '+total;
 }
 
-function updateProg(){
-  const done=Object.keys(preds).length;
-  const pct=Math.round(done/TOTAL*100);
-  document.getElementById('prog-fill').style.width=pct+'%';
-  document.getElementById('prog-txt').textContent=done+' / '+TOTAL;
-  document.getElementById('play-sub').textContent=done+' de 72 predicciones';
-}
-
-async function submitPreds(){
-  const done=Object.keys(preds).length;
-  if(done<TOTAL){document.getElementById('err-play').textContent='Faltan '+(TOTAL-done)+' predicciones. ¡Completa todas!';return;}
-  document.getElementById('err-play').textContent='';
-  const btn=document.querySelector('#submit-area .btn-primary');
-  btn.textContent='Guardando...'; btn.disabled=true;
+async function submitWeek(wi){
+  const done=Object.keys(preds[wi]).length,total=WEEKS[wi].total;
+  if(done<total){document.getElementById('ew-'+wi).textContent=`Faltan ${total-done} predicciones de esta semana.`;return;}
+  document.getElementById('ew-'+wi).textContent='';
+  const btn=document.getElementById('bs-'+wi);btn.textContent='Guardando...';btn.disabled=true;
   try{
-    await dbSet(dbRef(db,'players/'+player),{preds:{...preds},locked:true,ts:Date.now(),score:0,possible:0});
-    allPlayers[player]={preds:{...preds},locked:true,ts:Date.now(),score:0,possible:0};
-    isLocked=true;
-    document.getElementById('locked-banner').style.display='flex';
-    document.getElementById('submit-area').style.display='none';
-    document.querySelectorAll('#play-weeks button').forEach(b=>b.disabled=true);
-    document.getElementById('play-sub').textContent='¡Predicciones enviadas y bloqueadas!';
-    showToast('✅ ¡Predicciones guardadas en tiempo real!');
-  }catch(e){
-    btn.textContent='Enviar mis predicciones ›'; btn.disabled=false;
-    document.getElementById('err-play').textContent='Error al guardar. Verifica tu conexión.';
-  }
+    if(!allPlayers[player])allPlayers[player]={weeks:{},lockedWeeks:{},ts:Date.now(),score:0,possible:0};
+    if(!allPlayers[player].weeks)allPlayers[player].weeks={};
+    if(!allPlayers[player].lockedWeeks)allPlayers[player].lockedWeeks={};
+    allPlayers[player].weeks[wi]={...preds[wi]};
+    allPlayers[player].lockedWeeks[wi]=true;
+    allPlayers[player].ts=Date.now();
+    await dbSet(dbRef(db,'players/'+player),allPlayers[player]);
+    locked[wi]=true;renderWeekTabs();renderWeekBody();
+    showToast(`✅ ${WEEKS[wi].short} enviada y bloqueada`);
+  }catch(e){btn.textContent='Enviar '+WEEKS[wi].short+' ›';btn.disabled=false;document.getElementById('ew-'+wi).textContent='Error al guardar. Verifica tu conexión.';}
 }
 
-// SCOREBOARD — tiempo real con onValue
+// SCOREBOARD
 async function goSb(){
   showScreen('s-scoreboard');
   document.getElementById('sb-loading').style.display='block';
   document.getElementById('sb-list').style.display='none';
-  await initFirebase();
-  if(sbUnsubscribe) sbUnsubscribe();
-  sbUnsubscribe=dbOnValue(dbRef(db,'/'), snap=>{
+  await initFb();
+  if(sbUnsub)sbUnsub();
+  sbUnsub=dbOnValue(dbRef(db,'/'),snap=>{
     const data=snap.exists()?snap.val():{};
     allPlayers=data.players||{};
     realResults=data.results||{};
-    calcScores();
-    renderSb();
+    payments=data.payments||{};
+    calcScores();renderSb();
     document.getElementById('sb-loading').style.display='none';
     document.getElementById('sb-list').style.display='block';
   });
 }
 
 function renderSb(){
-  const players=Object.entries(allPlayers).filter(([,p])=>p.locked).sort((a,b)=>(b[1].score||0)-(a[1].score||0));
+  const players=Object.entries(allPlayers).sort((a,b)=>(b[1].score||0)-(a[1].score||0));
   const possible=Object.keys(realResults).length;
   const medals=['🥇','🥈','🥉'];
-  if(!players.length){
-    document.getElementById('sb-list').innerHTML='<div class="empty">👥<br>Aún no hay participantes.<br>¡Sé el primero!</div>';return;
-  }
+  if(!players.length){document.getElementById('sb-list').innerHTML='<div class="empty">👥<br>Aún no hay participantes.<br>¡Sé el primero!</div>';return;}
+  const sentCount=name=>{const p=allPlayers[name];if(!p||!p.lockedWeeks)return 0;return[0,1,2].filter(i=>p.lockedWeeks[i]).length;};
   document.getElementById('sb-list').innerHTML=`
     <div style="margin-bottom:14px;font-size:12px;color:var(--text2)">${players.length} participante${players.length!==1?'s':''} · ${possible} resultado${possible!==1?'s':''} confirmado${possible!==1?'s':''} de 72</div>
-    ${players.map(([name,p],i)=>`
-    <div class="sb-row">
-      <div class="sb-pos">${i<3?medals[i]:i+1}</div>
-      <div class="sb-av">${initials(name)}</div>
-      <div class="sb-info">
-        <div class="sb-name">${name}</div>
-        <div class="sb-detail">${possible>0?`${p.score||0} acierto${(p.score||0)!==1?'s':''} de ${possible} jugado${possible!==1?'s':''}`:p.locked?'Predicciones enviadas':'En progreso'}</div>
-      </div>
-      <div class="sb-score">
-        <div class="sb-pts">${possible>0?(p.score||0):'-'}</div>
-        <div class="sb-ptslbl">pts</div>
-      </div>
-    </div>`).join('')}`;
+    ${players.map(([name,p],i)=>{
+      const paid=payments[name]===true;
+      return `<div class="sb-row">
+        <div class="sb-pos">${i<3?medals[i]:i+1}</div>
+        <div class="sb-av${paid?' paid-ring':''}">
+          ${initials(name)}
+          ${paid?'<div class="paid-dot">✓</div>':''}
+        </div>
+        <div class="sb-info">
+          <div class="sb-name">
+            ${name}
+            ${paid?'<span class="paid-badge">✅ Pagó</span>':'<span class="unpaid-badge">⏳ Pendiente</span>'}
+          </div>
+          <div class="sb-detail">${possible>0?`${p.score||0} acierto${(p.score||0)!==1?'s':''} de ${possible} jugado${possible!==1?'s':''}`:sentCount(name)+' sem. enviada'+(sentCount(name)!==1?'s':'')}</div>
+        </div>
+        <div class="sb-score">
+          <div class="sb-pts">${possible>0?(p.score||0):'-'}</div>
+          <div class="sb-ptslbl">pts</div>
+        </div>
+      </div>`;
+    }).join('')}`;
 }
 
-// ADMIN LOGIN
+// ADMIN
 function goAdminLogin(){document.getElementById('inp-pw').value='';document.getElementById('err-admin').textContent='';showScreen('s-admin-login');}
-
 function adminLogin(){
   if(document.getElementById('inp-pw').value!==ADMIN_PW){document.getElementById('err-admin').textContent='Contraseña incorrecta.';return;}
   document.getElementById('err-admin').textContent='';
-  renderAdmin(); showScreen('s-admin');
+  adminWeek=0;renderAdmin();showScreen('s-admin');
 }
+function renderAdmin(){renderAdminWTabs();renderAdminWeek();}
 
-// ADMIN PANEL
-function renderAdmin(){renderAdminTabs();renderAdminWeeks();}
-
-function renderAdminTabs(){
-  document.getElementById('admin-tabs').innerHTML=WEEKS.map((w,i)=>
-    `<button class="tab${i===0?' active':''}" onclick="switchAdminTab(${i})">${w.label} <span style="font-size:10px;font-weight:400;opacity:0.7">${w.range}</span></button>`
+function renderAdminWTabs(){
+  document.getElementById('admin-wtabs').innerHTML=WEEKS.map((w,i)=>
+    `<button class="atab${i===adminWeek?' active':''}" onclick="switchAdminWeek(${i})">${w.short}</button>`
   ).join('');
 }
-
-function renderAdminWeeks(){
-  document.getElementById('admin-weeks').innerHTML=WEEKS.map((w,wi)=>{
-    const days=w.days.map((d,di)=>{
-      const rows=d.matches.map((m,mi)=>{
-        const id=mkId(wi,di,mi);const sel=realResults[id]||'';
-        return `<div class="admin-match" id="am_${id}">
-          <button class="atbtn home${sel==='h'?' sel':''}" id="ah_${id}" onclick="pickAdmin('${id}','h')">
-            <span class="flag">${fl(m.h)}</span><span>${m.h}</span>
-          </button>
-          <div class="mid">
-            <span class="gtag">Gr.${m.g}</span>
-            <button class="aempbtn${sel==='e'?' sel':''}" id="ae_${id}" onclick="pickAdmin('${id}','e')">Empate</button>
-          </div>
-          <button class="atbtn away${sel==='a'?' sel':''}" id="aa_${id}" onclick="pickAdmin('${id}','a')">
-            <span class="flag">${fl(m.a)}</span><span>${m.a}</span>
-          </button>
-        </div>`;
-      }).join('');
-      return `<div><div class="day-lbl">${d.day}</div>${rows}</div>`;
-    }).join('');
-    return `<div class="wsec${wi===0?' active':''}" id="aw_${wi}">${days}</div>`;
-  }).join('');
+function renderAdminWeek(){
+  const wi=adminWeek;let html='';
+  WEEKS[wi].days.forEach((d,di)=>{
+    html+=`<div><div class="day-lbl">${d.day}</div>`;
+    d.matches.forEach((m,mi)=>{
+      const id=mkId(wi,di,mi);const sel=realResults[id]||'';
+      html+=`<div class="admin-match">
+        <button class="atbtn home${sel==='h'?' sel':''}" id="ah_${id}" onclick="pickAdmin('${id}','h')"><span class="flag">${fl(m.h)}</span><span>${m.h}</span></button>
+        <div class="mid"><span class="gtag">Gr.${m.g}</span><button class="aempbtn${sel==='e'?' sel':''}" id="ae_${id}" onclick="pickAdmin('${id}','e')">Empate</button></div>
+        <button class="atbtn away${sel==='a'?' sel':''}" id="aa_${id}" onclick="pickAdmin('${id}','a')"><span class="flag">${fl(m.a)}</span><span>${m.a}</span></button>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  document.getElementById('admin-weeks').innerHTML=html;
 }
-
-function switchAdminTab(i){
-  document.querySelectorAll('#admin-tabs .tab').forEach((t,idx)=>t.classList.toggle('active',idx===i));
-  document.querySelectorAll('#admin-weeks .wsec').forEach((s,idx)=>s.classList.toggle('active',idx===i));
-}
-
+function switchAdminWeek(i){adminWeek=i;renderAdminWTabs();renderAdminWeek();}
 function pickAdmin(id,val){
   if(realResults[id]===val)delete realResults[id]; else realResults[id]=val;
   const sel=realResults[id]||'';
-  const hb=document.getElementById('ah_'+id);
-  const ab=document.getElementById('aa_'+id);
-  const eb=document.getElementById('ae_'+id);
+  const hb=document.getElementById('ah_'+id),ab=document.getElementById('aa_'+id),eb=document.getElementById('ae_'+id);
   if(hb)hb.className='atbtn home'+(sel==='h'?' sel':'');
   if(ab)ab.className='atbtn away'+(sel==='a'?' sel':'');
   if(eb)eb.className='aempbtn'+(sel==='e'?' sel':'');
 }
-
 async function saveResults(){
-  const btn=document.getElementById('btn-save-results');
-  btn.textContent='Guardando...'; btn.disabled=true;
+  const btn=document.getElementById('btn-save');btn.textContent='Guardando...';btn.disabled=true;
   try{
     await dbSet(dbRef(db,'results'),realResults);
-    // recalcular scores de todos
-    await loadAllData();
-    calcScores();
-    const updates={};
-    Object.entries(allPlayers).forEach(([name,p])=>{
-      updates['players/'+name+'/score']=p.score||0;
-      updates['players/'+name+'/possible']=p.possible||0;
-    });
-    if(Object.keys(updates).length) await dbUpdate(dbRef(db),updates);
+    await loadAll();calcScores();
+    const upd={};
+    Object.entries(allPlayers).forEach(([name,p])=>{upd['players/'+name+'/score']=p.score||0;upd['players/'+name+'/possible']=p.possible||0;});
+    if(Object.keys(upd).length)await dbUpdate(dbRef(db),upd);
     showToast('✅ Resultados guardados y scores actualizados');
-  }catch(e){
-    showToast('❌ Error al guardar. Verifica tu conexión.');
-  }
-  btn.textContent='Guardar y recalcular scores'; btn.disabled=false;
+  }catch(e){showToast('❌ Error al guardar');}
+  btn.textContent='Guardar y recalcular scores';btn.disabled=false;
+}
+
+// PAGOS
+function renderPayments(){
+  const players=Object.entries(allPlayers).sort((a,b)=>a[0].localeCompare(b[0]));
+  const total=players.length;
+  const pagados=players.filter(([name])=>payments[name]===true).length;
+  const pendientes=total-pagados;
+  document.getElementById('pay-summary').innerHTML=`
+    <div class="pay-stat"><div class="pay-stat-num" style="color:var(--gt)">${pagados}</div><div class="pay-stat-lbl">Pagaron ✅</div></div>
+    <div class="pay-stat"><div class="pay-stat-num" style="color:var(--rt)">${pendientes}</div><div class="pay-stat-lbl">Pendientes ⏳</div></div>
+    <div class="pay-stat"><div class="pay-stat-num">${total}</div><div class="pay-stat-lbl">Total</div></div>`;
+  if(!players.length){document.getElementById('pay-list').innerHTML='<div class="empty">Sin participantes aún.</div>';return;}
+  document.getElementById('pay-list').innerHTML=players.map(([name])=>{
+    const paid=payments[name]===true;
+    return `<div class="pay-row">
+      <div class="pay-av${paid?' paid':''}">${initials(name)}</div>
+      <div class="pay-info">
+        <div class="pay-name">${name}</div>
+        <div class="pay-sub">${paid?'Pago registrado ✅':'Sin pago registrado'}</div>
+      </div>
+      <button class="toggle-pay ${paid?'is-paid':'not-paid'}" onclick="togglePay('${name}')">${paid?'✅ Pagó':'⏳ Pendiente'}</button>
+    </div>`;
+  }).join('');
+}
+
+async function togglePay(name){
+  const wasPaid=payments[name]===true;
+  payments[name]=!wasPaid;
+  try{
+    await dbSet(dbRef(db,'payments/'+name),payments[name]);
+    showToast(payments[name]?`✅ ${name} marcado como pagado`:`⏳ ${name} marcado como pendiente`);
+    renderPayments();
+  }catch(e){payments[name]=wasPaid;showToast('❌ Error al guardar');}
 }
 
 function adminTab(t){
-  document.getElementById('admin-r-panel').style.display=t==='r'?'block':'none';
-  document.getElementById('admin-p-panel').style.display=t==='p'?'block':'none';
-  document.getElementById('anav-r').classList.toggle('active',t==='r');
-  document.getElementById('anav-p').classList.toggle('active',t==='p');
+  ['r','pagos','p'].forEach(tab=>{
+    document.getElementById('admin-'+tab+'-panel').style.display=t===tab?'block':'none';
+    document.getElementById('anav-'+tab).classList.toggle('active',t===tab);
+  });
+  if(t==='pagos'){loadAll().then(renderPayments);}
   if(t==='p')renderAdminPlayers();
 }
 
@@ -576,65 +628,63 @@ function renderAdminPlayers(){
   const pl=Object.entries(allPlayers).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0));
   if(!pl.length){document.getElementById('admin-p-list').innerHTML='<div class="empty">Sin participantes aún.</div>';return;}
   document.getElementById('admin-p-list').innerHTML=`
-    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">${pl.length} participante${pl.length!==1?'s':''} registrado${pl.length!==1?'s':''}</div>
-    ${pl.map(([name,p])=>`
-    <div class="sb-row">
-      <div class="sb-av">${initials(name)}</div>
-      <div class="sb-info">
-        <div class="sb-name">${name}</div>
-        <div class="sb-detail">${Object.keys(p.preds||{}).length} predicciones · ${new Date(p.ts).toLocaleDateString('es-MX')}</div>
-      </div>
-      <span class="badge ${p.locked?'badge-done':'badge-wait'}">${p.locked?'Enviado':'Pendiente'}</span>
-    </div>`).join('')}`;
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">${pl.length} participante${pl.length!==1?'s':''}</div>
+    ${pl.map(([name,p])=>{
+      const lw=p.lockedWeeks||{};
+      const paid=payments[name]===true;
+      const sems=[0,1,2].map(i=>lw[i]?`<span class="badge badge-done">Sem.${i+1}</span>`:`<span class="badge badge-wait">Sem.${i+1}</span>`).join(' ');
+      return `<div class="sb-row">
+        <div class="sb-av${paid?' paid-ring':''}">${initials(name)}${paid?'<div class="paid-dot">✓</div>':''}</div>
+        <div class="sb-info">
+          <div class="sb-name">${name} ${paid?'<span class="paid-badge">✅ Pagó</span>':''}</div>
+          <div class="sb-detail" style="display:flex;gap:4px;margin-top:4px">${sems}</div>
+        </div>
+        <div style="font-size:12px;font-weight:500;color:var(--text2)">${p.score||0} pts</div>
+      </div>`;
+    }).join('')}`;
 }
 
-// EXPORTAR EXCEL
 function exportExcel(){
   const ids=getAllIds();
   const possible=ids.filter(id=>realResults[id]).length;
-  const players=Object.entries(allPlayers).filter(([,p])=>p.locked).sort((a,b)=>(b[1].score||0)-(a[1].score||0));
-
-  // Hoja 1: Scoreboard
-  const sbData=[['Pos','Participante','Aciertos','Partidos jugados','Fecha de envío']];
+  const players=Object.entries(allPlayers).sort((a,b)=>(b[1].score||0)-(a[1].score||0));
+  const sbData=[['Pos','Participante','Puntos','Partidos jugados','Semanas enviadas','Pago','Fecha']];
   players.forEach(([name,p],i)=>{
-    sbData.push([i+1, name, p.score||0, possible, new Date(p.ts).toLocaleDateString('es-MX')]);
+    const lw=p.lockedWeeks||{};
+    const sems=[0,1,2].filter(i=>lw[i]).map(i=>'Sem.'+(i+1)).join(', ');
+    const paid=payments[name]===true?'✅ Pagó':'⏳ Pendiente';
+    sbData.push([i+1,name,p.score||0,possible,sems,paid,new Date(p.ts).toLocaleDateString('es-MX')]);
   });
-
-  // Hoja 2: Predicciones detalladas
-  const header=['Participante','Sem.','Día','Partido','Local','Visitante','Predicción','Resultado real','Acierto'];
+  const header=['Participante','Pago','Semana','Día','Local','Visitante','Predicción','Resultado real','Acierto'];
   const detData=[header];
   players.forEach(([name,p])=>{
     WEEKS.forEach((w,wi)=>{
       w.days.forEach((d,di)=>{
         d.matches.forEach((m,mi)=>{
           const id=mkId(wi,di,mi);
-          const pred=p.preds?p.preds[id]:'';
+          const pred=((p.weeks||{})[wi]||{})[id]||'';
           const real=realResults[id]||'';
           const predLabel=pred==='h'?m.h:pred==='a'?m.a:pred==='e'?'Empate':'-';
           const realLabel=real==='h'?m.h:real==='a'?m.a:real==='e'?'Empate':'-';
           const acierto=real&&pred?(pred===real?'✅':'❌'):'-';
-          detData.push([name,w.label,d.day,m.h+' vs '+m.a,m.h,m.a,predLabel,realLabel,acierto]);
+          const paid=payments[name]===true?'✅ Pagó':'⏳ Pendiente';
+          detData.push([name,paid,w.label,d.day,m.h,m.a,predLabel,realLabel,acierto]);
         });
       });
     });
   });
-
   const wb=XLSX.utils.book_new();
   const ws1=XLSX.utils.aoa_to_sheet(sbData);
   const ws2=XLSX.utils.aoa_to_sheet(detData);
-  ws1['!cols']=[{wch:5},{wch:22},{wch:10},{wch:18},{wch:16}];
-  ws2['!cols']=[{wch:18},{wch:8},{wch:12},{wch:24},{wch:16},{wch:16},{wch:16},{wch:16},{wch:8}];
+  ws1['!cols']=[{wch:5},{wch:22},{wch:8},{wch:16},{wch:20},{wch:14},{wch:14}];
+  ws2['!cols']=[{wch:18},{wch:12},{wch:10},{wch:12},{wch:16},{wch:16},{wch:16},{wch:16},{wch:8}];
   XLSX.utils.book_append_sheet(wb,ws1,'Scoreboard');
   XLSX.utils.book_append_sheet(wb,ws2,'Predicciones detalladas');
   XLSX.writeFile(wb,'Quiniela_Mundial_2026.xlsx');
   showToast('📥 Excel descargado');
 }
 
-// INICIO
-initFirebase().then(()=>loadAllData()).then(()=>{
-  // Pre-cargar datos para que goPlay sea inmediato
-  console.log('Firebase listo ✅');
-});
+initFb().then(()=>loadAll()).then(()=>{console.log('Firebase listo ✅');});
 </script>
 </body>
 </html>
