@@ -387,7 +387,7 @@ function formatUser(input){
 }
 
 // HOME
-function goPlay(){
+async function goPlay(){
   const raw=document.getElementById('inp-name').value.toUpperCase().replace(/[^A-Z0-9ÁÉÍÓÚÜÑ]/g,'').trim();
   document.getElementById('inp-name').value=raw;
   const errEl=document.getElementById('err-home');
@@ -396,13 +396,43 @@ function goPlay(){
   const nums=(raw.match(/[0-9]/g)||[]).length;
   if(nums<2){errEl.textContent=`Tu usuario necesita al menos 2 números (tienes ${nums}). Ejemplo: GARCIA24`;return;}
   errEl.textContent='';
-  player=raw;
-  const ex=allPlayers[name];
-  if(ex&&ex.weeks){
-    preds=[{...(ex.weeks[0]||{})},{...(ex.weeks[1]||{})},{...(ex.weeks[2]||{})}];
-    locked=[!!(ex.lockedWeeks&&ex.lockedWeeks[0]),!!(ex.lockedWeeks&&ex.lockedWeeks[1]),!!(ex.lockedWeeks&&ex.lockedWeeks[2])];
-  } else {preds=[{},{},{}];locked=[false,false,false];}
-  currentWeek=0;renderPlay();showScreen('s-play');
+
+  // Mostrar loading mientras consultamos Firebase
+  const btn=document.querySelector('#s-home .btn-primary');
+  btn.textContent='Cargando...';btn.disabled=true;
+
+  try{
+    // Siempre consultar Firebase directo para obtener el estado real
+    await initFb();
+    const snap=await dbGet(dbRef(db,'players/'+raw));
+    const ex=snap.exists()?snap.val():null;
+
+    player=raw;
+    if(ex&&ex.weeks){
+      // Cargar predicciones y bloqueos desde Firebase
+      preds=[{...(ex.weeks[0]||{})},{...(ex.weeks[1]||{})},{...(ex.weeks[2]||{})}];
+      locked=[
+        !!(ex.lockedWeeks&&ex.lockedWeeks[0]),
+        !!(ex.lockedWeeks&&ex.lockedWeeks[1]),
+        !!(ex.lockedWeeks&&ex.lockedWeeks[2])
+      ];
+      // Sincronizar allPlayers con datos frescos
+      allPlayers[raw]=ex;
+    } else {
+      preds=[{},{},{}];
+      locked=[false,false,false];
+    }
+
+    // Ir a la primera semana no enviada, o la primera si todas están enviadas
+    currentWeek=locked.findIndex(l=>!l);
+    if(currentWeek===-1) currentWeek=0;
+
+    renderPlay();
+    showScreen('s-play');
+  }catch(e){
+    errEl.textContent='Error al conectar. Verifica tu internet e intenta de nuevo.';
+  }
+  btn.textContent='Entrar a mi quiniela ›';btn.disabled=false;
 }
 
 function renderPlay(){
@@ -489,6 +519,17 @@ function pick(wi,id,val){
 }
 
 async function submitWeek(wi){
+  // Verificar en Firebase que realmente no esté ya bloqueada (evita doble envío)
+  try{
+    const snap=await dbGet(dbRef(db,'players/'+player+'/lockedWeeks/'+wi));
+    if(snap.exists()&&snap.val()===true){
+      locked[wi]=true;
+      renderWeekTabs();renderWeekBody();
+      showToast('🔒 Esta semana ya estaba enviada y bloqueada');
+      return;
+    }
+  }catch(e){}
+
   const done=Object.keys(preds[wi]).length,total=WEEKS[wi].total;
   if(done<total){document.getElementById('ew-'+wi).textContent=`Faltan ${total-done} predicciones de esta semana.`;return;}
   document.getElementById('ew-'+wi).textContent='';
@@ -502,8 +543,12 @@ async function submitWeek(wi){
     allPlayers[player].ts=Date.now();
     await dbSet(dbRef(db,'players/'+player),allPlayers[player]);
     locked[wi]=true;renderWeekTabs();renderWeekBody();
-    showToast(`✅ ${WEEKS[wi].short} enviada y bloqueada`);
-  }catch(e){btn.textContent='Enviar '+WEEKS[wi].short+' ›';btn.disabled=false;document.getElementById('ew-'+wi).textContent='Error al guardar. Verifica tu conexión.';}
+    showToast(`✅ ${WEEKS[wi].short} enviada y bloqueada para siempre`);
+  }catch(e){
+    const btn2=document.getElementById('bs-'+wi);
+    if(btn2){btn2.textContent='Enviar '+WEEKS[wi].short+' ›';btn2.disabled=false;}
+    document.getElementById('ew-'+wi).textContent='Error al guardar. Verifica tu conexión.';
+  }
 }
 
 // SCOREBOARD
