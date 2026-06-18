@@ -216,6 +216,7 @@ input:focus{border-color:var(--gb);box-shadow:0 0 0 3px rgba(99,153,34,0.15)}
     <div class="logo" style="font-size:18px">📊 Scoreboard</div>
     <button class="btn btn-sm" onclick="showScreen('s-home')">Volver</button>
   </div>
+  <div class="admin-tabs-sm" id="sb-wtabs"></div>
   <div id="sb-loading" class="loading"><div class="spinner"></div><br>Cargando...</div>
   <div id="sb-list" style="display:none"></div>
 </div>
@@ -356,11 +357,25 @@ function getWeekIds(wi){const ids=[];WEEKS[wi].days.forEach((d,di)=>d.matches.fo
 function getAllIds(){return[0,1,2].flatMap(wi=>getWeekIds(wi));}
 
 function calcScores(){
-  const ids=getAllIds();
-  const possible=ids.filter(id=>realResults[id]).length;
+  // Calcula aciertos y posibles POR SEMANA (no acumulado) para que sea justo
+  // con participantes que se unen después.
   Object.values(allPlayers).forEach(p=>{
-    let s=0;
+    p.weekScores={};
+    p.weekPossible={};
+    [0,1,2].forEach(wi=>{
+      const ids=getWeekIds(wi);
+      const possible=ids.filter(id=>realResults[id]).length;
+      const wPreds=(p.weeks||{})[wi]||{};
+      let s=0;
+      ids.forEach(id=>{if(realResults[id]&&wPreds[id]&&realResults[id]===wPreds[id])s++;});
+      p.weekScores[wi]=s;
+      p.weekPossible[wi]=possible;
+    });
+    // Mantener score/possible totales solo como referencia interna (no se muestra como ranking principal)
+    const ids=getAllIds();
+    const possible=ids.filter(id=>realResults[id]).length;
     const allPreds={...((p.weeks||{})[0]||{}), ...((p.weeks||{})[1]||{}), ...((p.weeks||{})[2]||{})};
+    let s=0;
     ids.forEach(id=>{if(realResults[id]&&allPreds[id]&&realResults[id]===allPreds[id])s++;});
     p.score=s;p.possible=possible;
   });
@@ -552,10 +567,13 @@ async function submitWeek(wi){
 }
 
 // SCOREBOARD
+let sbWeek=0;
+
 async function goSb(){
   showScreen('s-scoreboard');
   document.getElementById('sb-loading').style.display='block';
   document.getElementById('sb-list').style.display='none';
+  renderSbWTabs();
   await initFb();
   if(sbUnsub)sbUnsub();
   sbUnsub=dbOnValue(dbRef(db,'/'),snap=>{
@@ -569,16 +587,32 @@ async function goSb(){
   });
 }
 
+function renderSbWTabs(){
+  document.getElementById('sb-wtabs').innerHTML=WEEKS.map((w,i)=>
+    `<button class="atab${i===sbWeek?' active':''}" onclick="switchSbWeek(${i})">${w.short}</button>`
+  ).join('');
+}
+
+function switchSbWeek(i){sbWeek=i;renderSbWTabs();renderSb();}
+
 function renderSb(){
-  const players=Object.entries(allPlayers).sort((a,b)=>(b[1].score||0)-(a[1].score||0));
-  const possible=Object.keys(realResults).length;
+  const wi=sbWeek;
+  const w=WEEKS[wi];
+  // Solo participantes que enviaron ESA semana específica
+  const players=Object.entries(allPlayers)
+    .filter(([,p])=>p.lockedWeeks&&p.lockedWeeks[wi])
+    .sort((a,b)=>(b[1].weekScores?b[1].weekScores[wi]:0)-(a[1].weekScores?a[1].weekScores[wi]:0));
+  const possible=(Object.values(allPlayers)[0]&&Object.values(allPlayers)[0].weekPossible)?Object.values(allPlayers)[0].weekPossible[wi]:getWeekIds(wi).filter(id=>realResults[id]).length;
   const medals=['🥇','🥈','🥉'];
-  if(!players.length){document.getElementById('sb-list').innerHTML='<div class="empty">👥<br>Aún no hay participantes.<br>¡Sé el primero!</div>';return;}
-  const sentCount=name=>{const p=allPlayers[name];if(!p||!p.lockedWeeks)return 0;return[0,1,2].filter(i=>p.lockedWeeks[i]).length;};
+  if(!players.length){
+    document.getElementById('sb-list').innerHTML=`<div class="empty">👥<br>Nadie ha enviado ${w.label} todavía.<br>¡Sé el primero!</div>`;
+    return;
+  }
   document.getElementById('sb-list').innerHTML=`
-    <div style="margin-bottom:14px;font-size:12px;color:var(--text2)">${players.length} participante${players.length!==1?'s':''} · ${possible} resultado${possible!==1?'s':''} confirmado${possible!==1?'s':''} de 72</div>
+    <div style="margin-bottom:14px;font-size:12px;color:var(--text2)">${w.label} (${w.range}) · ${players.length} participante${players.length!==1?'s':''} · ${possible} resultado${possible!==1?'s':''} confirmado${possible!==1?'s':''} de ${w.total}</div>
     ${players.map(([name,p],i)=>{
       const paid=payments[name]===true;
+      const wScore=p.weekScores?p.weekScores[wi]:0;
       return `<div class="sb-row">
         <div class="sb-pos">${i<3?medals[i]:i+1}</div>
         <div class="sb-av${paid?' paid-ring':''}">
@@ -590,10 +624,10 @@ function renderSb(){
             ${name}
             ${paid?'<span class="paid-badge">✅ Pagó</span>':'<span class="unpaid-badge">⏳ Pendiente</span>'}
           </div>
-          <div class="sb-detail">${possible>0?`${p.score||0} acierto${(p.score||0)!==1?'s':''} de ${possible} jugado${possible!==1?'s':''}`:sentCount(name)+' sem. enviada'+(sentCount(name)!==1?'s':'')}</div>
+          <div class="sb-detail">${possible>0?`${wScore} acierto${wScore!==1?'s':''} de ${possible} jugado${possible!==1?'s':''} en ${w.short}`:`${w.label} enviada`}</div>
         </div>
         <div class="sb-score">
-          <div class="sb-pts">${possible>0?(p.score||0):'-'}</div>
+          <div class="sb-pts">${possible>0?wScore:'-'}</div>
           <div class="sb-ptslbl">pts</div>
         </div>
       </div>`;
@@ -645,9 +679,14 @@ async function saveResults(){
     await dbSet(dbRef(db,'results'),realResults);
     await loadAll();calcScores();
     const upd={};
-    Object.entries(allPlayers).forEach(([name,p])=>{upd['players/'+name+'/score']=p.score||0;upd['players/'+name+'/possible']=p.possible||0;});
+    Object.entries(allPlayers).forEach(([name,p])=>{
+      upd['players/'+name+'/score']=p.score||0;
+      upd['players/'+name+'/possible']=p.possible||0;
+      upd['players/'+name+'/weekScores']=p.weekScores||{};
+      upd['players/'+name+'/weekPossible']=p.weekPossible||{};
+    });
     if(Object.keys(upd).length)await dbUpdate(dbRef(db),upd);
-    showToast('✅ Resultados guardados y scores actualizados');
+    showToast('✅ Resultados guardados y scores por semana actualizados');
   }catch(e){showToast('❌ Error al guardar');}
   btn.textContent='Guardar y recalcular scores';btn.disabled=false;
 }
@@ -704,28 +743,39 @@ function renderAdminPlayers(){
     ${pl.map(([name,p])=>{
       const lw=p.lockedWeeks||{};
       const paid=payments[name]===true;
-      const sems=[0,1,2].map(i=>lw[i]?`<span class="badge badge-done">Sem.${i+1}</span>`:`<span class="badge badge-wait">Sem.${i+1}</span>`).join(' ');
+      const ws=p.weekScores||{};
+      const sems=[0,1,2].map(i=>{
+        if(!lw[i]) return `<span class="badge badge-wait">Sem.${i+1}: —</span>`;
+        return `<span class="badge badge-done">Sem.${i+1}: ${ws[i]||0}pts</span>`;
+      }).join(' ');
       return `<div class="sb-row">
         <div class="sb-av${paid?' paid-ring':''}">${initials(name)}${paid?'<div class="paid-dot">✓</div>':''}</div>
         <div class="sb-info">
           <div class="sb-name">${name} ${paid?'<span class="paid-badge">✅ Pagó</span>':''}</div>
-          <div class="sb-detail" style="display:flex;gap:4px;margin-top:4px">${sems}</div>
+          <div class="sb-detail" style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">${sems}</div>
         </div>
-        <div style="font-size:12px;font-weight:500;color:var(--text2)">${p.score||0} pts</div>
       </div>`;
     }).join('')}`;
 }
 
 function exportExcel(){
-  const ids=getAllIds();
-  const possible=ids.filter(id=>realResults[id]).length;
-  const players=Object.entries(allPlayers).sort((a,b)=>(b[1].score||0)-(a[1].score||0));
-  const sbData=[['Pos','Participante','Puntos','Partidos jugados','Semanas enviadas','Pago','Fecha']];
-  players.forEach(([name,p],i)=>{
+  const players=Object.entries(allPlayers).sort((a,b)=>a[0].localeCompare(b[0]));
+  const sbData=[['Participante','Pts Sem.1','Pts Sem.2','Pts Sem.3','Sem.1 enviada','Sem.2 enviada','Sem.3 enviada','Pago','Fecha registro']];
+  players.forEach(([name,p])=>{
     const lw=p.lockedWeeks||{};
-    const sems=[0,1,2].filter(i=>lw[i]).map(i=>'Sem.'+(i+1)).join(', ');
+    const ws=p.weekScores||{};
     const paid=payments[name]===true?'✅ Pagó':'⏳ Pendiente';
-    sbData.push([i+1,name,p.score||0,possible,sems,paid,new Date(p.ts).toLocaleDateString('es-MX')]);
+    sbData.push([
+      name,
+      lw[0]?(ws[0]||0):'—',
+      lw[1]?(ws[1]||0):'—',
+      lw[2]?(ws[2]||0):'—',
+      lw[0]?'Sí':'No',
+      lw[1]?'Sí':'No',
+      lw[2]?'Sí':'No',
+      paid,
+      new Date(p.ts).toLocaleDateString('es-MX')
+    ]);
   });
   const header=['Participante','Pago','Semana','Día','Local','Visitante','Predicción','Resultado real','Acierto'];
   const detData=[header];
@@ -748,7 +798,7 @@ function exportExcel(){
   const wb=XLSX.utils.book_new();
   const ws1=XLSX.utils.aoa_to_sheet(sbData);
   const ws2=XLSX.utils.aoa_to_sheet(detData);
-  ws1['!cols']=[{wch:5},{wch:22},{wch:8},{wch:16},{wch:20},{wch:14},{wch:14}];
+  ws1['!cols']=[{wch:22},{wch:10},{wch:10},{wch:10},{wch:14},{wch:14},{wch:14},{wch:14},{wch:16}];
   ws2['!cols']=[{wch:18},{wch:12},{wch:10},{wch:12},{wch:16},{wch:16},{wch:16},{wch:16},{wch:8}];
   XLSX.utils.book_append_sheet(wb,ws1,'Scoreboard');
   XLSX.utils.book_append_sheet(wb,ws2,'Predicciones detalladas');
