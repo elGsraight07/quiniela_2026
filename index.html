@@ -741,10 +741,15 @@ async function togglePay(name,wi){
   const wasPaid=payments[name][wi]===true;
   payments[name][wi]=!wasPaid;
   try{
+    await initFb();
     await dbSet(dbRef(db,'payments/'+name+'/'+wi),payments[name][wi]);
     showToast(payments[name][wi]?`✅ ${name} marcado como pagado en ${WEEKS[wi].short}`:`⏳ ${name} marcado como pendiente en ${WEEKS[wi].short}`);
     renderPayments();
-  }catch(e){payments[name][wi]=wasPaid;showToast('❌ Error al guardar');}
+  }catch(e){
+    payments[name][wi]=wasPaid;
+    console.error('Error togglePay:',e);
+    showToast('❌ Error: '+(e.message||e.code||'desconocido'));
+  }
 }
 
 function adminTab(t){
