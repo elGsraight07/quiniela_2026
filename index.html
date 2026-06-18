@@ -130,6 +130,7 @@ input:focus{border-color:var(--gb);box-shadow:0 0 0 3px rgba(99,153,34,0.15)}
 .nav-btn.active{background:var(--bg2);color:var(--text);font-weight:500}
 .badge{display:inline-block;font-size:10px;padding:3px 8px;border-radius:99px}
 .badge-done{background:var(--gbg);color:var(--gt)}
+.badge-unpaid{background:var(--rbg);color:var(--rt)}
 .badge-wait{background:var(--bg2);color:var(--text2)}
 /* ADMIN matches */
 .admin-match{display:grid;grid-template-columns:1fr 72px 1fr;border:0.5px solid var(--border);border-radius:var(--rl);margin-bottom:7px;overflow:hidden;background:var(--bg)}
@@ -280,6 +281,8 @@ input:focus{border-color:var(--gb);box-shadow:0 0 0 3px rgba(99,153,34,0.15)}
 
   <!-- Pagos -->
   <div id="admin-pagos-panel" style="display:none">
+    <p style="font-size:12px;color:var(--text2);margin-bottom:14px">El pago se registra de forma independiente por cada semana.</p>
+    <div class="admin-tabs-sm" id="pagos-wtabs"></div>
     <div class="pay-summary" id="pay-summary"></div>
     <div id="pay-list"></div>
     <div style="padding:1rem 0">
@@ -611,7 +614,7 @@ function renderSb(){
   document.getElementById('sb-list').innerHTML=`
     <div style="margin-bottom:14px;font-size:12px;color:var(--text2)">${w.label} (${w.range}) · ${players.length} participante${players.length!==1?'s':''} · ${possible} resultado${possible!==1?'s':''} confirmado${possible!==1?'s':''} de ${w.total}</div>
     ${players.map(([name,p],i)=>{
-      const paid=payments[name]===true;
+      const paid=isPaid(name,wi);
       const wScore=p.weekScores?p.weekScores[wi]:0;
       return `<div class="sb-row">
         <div class="sb-pos">${i<3?medals[i]:i+1}</div>
@@ -691,38 +694,57 @@ async function saveResults(){
   btn.textContent='Guardar y recalcular scores';btn.disabled=false;
 }
 
-// PAGOS
+// PAGOS — ahora por semana: payments[name][weekIndex] = true/false
+let pagosWeek=0;
+
+function renderPagosWTabs(){
+  document.getElementById('pagos-wtabs').innerHTML=WEEKS.map((w,i)=>
+    `<button class="atab${i===pagosWeek?' active':''}" onclick="switchPagosWeek(${i})">${w.short}</button>`
+  ).join('');
+}
+function switchPagosWeek(i){pagosWeek=i;renderPagosWTabs();renderPayments();}
+
+function isPaid(name,wi){
+  return !!(payments[name]&&payments[name][wi]===true);
+}
+
 function renderPayments(){
-  const players=Object.entries(allPlayers).sort((a,b)=>a[0].localeCompare(b[0]));
+  renderPagosWTabs();
+  const wi=pagosWeek;
+  // Solo participantes que enviaron esa semana (son los que deben pagar esa entrada)
+  const players=Object.entries(allPlayers)
+    .filter(([,p])=>p.lockedWeeks&&p.lockedWeeks[wi])
+    .sort((a,b)=>a[0].localeCompare(b[0]));
   const total=players.length;
-  const pagados=players.filter(([name])=>payments[name]===true).length;
+  const pagados=players.filter(([name])=>isPaid(name,wi)).length;
   const pendientes=total-pagados;
   document.getElementById('pay-summary').innerHTML=`
     <div class="pay-stat"><div class="pay-stat-num" style="color:var(--gt)">${pagados}</div><div class="pay-stat-lbl">Pagaron ✅</div></div>
     <div class="pay-stat"><div class="pay-stat-num" style="color:var(--rt)">${pendientes}</div><div class="pay-stat-lbl">Pendientes ⏳</div></div>
-    <div class="pay-stat"><div class="pay-stat-num">${total}</div><div class="pay-stat-lbl">Total</div></div>`;
-  if(!players.length){document.getElementById('pay-list').innerHTML='<div class="empty">Sin participantes aún.</div>';return;}
+    <div class="pay-stat"><div class="pay-stat-num">${total}</div><div class="pay-stat-lbl">Total ${WEEKS[wi].short}</div></div>`;
+  if(!players.length){document.getElementById('pay-list').innerHTML=`<div class="empty">Nadie ha enviado ${WEEKS[wi].label} todavía.</div>`;return;}
   document.getElementById('pay-list').innerHTML=players.map(([name])=>{
-    const paid=payments[name]===true;
+    const paid=isPaid(name,wi);
     return `<div class="pay-row">
       <div class="pay-av${paid?' paid':''}">${initials(name)}</div>
       <div class="pay-info">
         <div class="pay-name">${name}</div>
-        <div class="pay-sub">${paid?'Pago registrado ✅':'Sin pago registrado'}</div>
+        <div class="pay-sub">${paid?`Pago de ${WEEKS[wi].short} registrado ✅`:`Sin pago registrado para ${WEEKS[wi].short}`}</div>
       </div>
-      <button class="toggle-pay ${paid?'is-paid':'not-paid'}" onclick="togglePay('${name}')">${paid?'✅ Pagó':'⏳ Pendiente'}</button>
+      <button class="toggle-pay ${paid?'is-paid':'not-paid'}" onclick="togglePay('${name}',${wi})">${paid?'✅ Pagó':'⏳ Pendiente'}</button>
     </div>`;
   }).join('');
 }
 
-async function togglePay(name){
-  const wasPaid=payments[name]===true;
-  payments[name]=!wasPaid;
+async function togglePay(name,wi){
+  if(!payments[name])payments[name]={};
+  const wasPaid=payments[name][wi]===true;
+  payments[name][wi]=!wasPaid;
   try{
-    await dbSet(dbRef(db,'payments/'+name),payments[name]);
-    showToast(payments[name]?`✅ ${name} marcado como pagado`:`⏳ ${name} marcado como pendiente`);
+    await dbSet(dbRef(db,'payments/'+name+'/'+wi),payments[name][wi]);
+    showToast(payments[name][wi]?`✅ ${name} marcado como pagado en ${WEEKS[wi].short}`:`⏳ ${name} marcado como pendiente en ${WEEKS[wi].short}`);
     renderPayments();
-  }catch(e){payments[name]=wasPaid;showToast('❌ Error al guardar');}
+  }catch(e){payments[name][wi]=wasPaid;showToast('❌ Error al guardar');}
 }
 
 function adminTab(t){
@@ -742,16 +764,17 @@ function renderAdminPlayers(){
     <div style="font-size:12px;color:var(--text2);margin-bottom:12px">${pl.length} participante${pl.length!==1?'s':''}</div>
     ${pl.map(([name,p])=>{
       const lw=p.lockedWeeks||{};
-      const paid=payments[name]===true;
       const ws=p.weekScores||{};
+      const anyPaid=[0,1,2].some(i=>isPaid(name,i));
       const sems=[0,1,2].map(i=>{
         if(!lw[i]) return `<span class="badge badge-wait">Sem.${i+1}: —</span>`;
-        return `<span class="badge badge-done">Sem.${i+1}: ${ws[i]||0}pts</span>`;
+        const paidWeek=isPaid(name,i);
+        return `<span class="badge ${paidWeek?'badge-done':'badge-unpaid'}">Sem.${i+1}: ${ws[i]||0}pts ${paidWeek?'💰':'⏳'}</span>`;
       }).join(' ');
       return `<div class="sb-row">
-        <div class="sb-av${paid?' paid-ring':''}">${initials(name)}${paid?'<div class="paid-dot">✓</div>':''}</div>
+        <div class="sb-av${anyPaid?' paid-ring':''}">${initials(name)}${anyPaid?'<div class="paid-dot">✓</div>':''}</div>
         <div class="sb-info">
-          <div class="sb-name">${name} ${paid?'<span class="paid-badge">✅ Pagó</span>':''}</div>
+          <div class="sb-name">${name}</div>
           <div class="sb-detail" style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">${sems}</div>
         </div>
       </div>`;
@@ -760,11 +783,11 @@ function renderAdminPlayers(){
 
 function exportExcel(){
   const players=Object.entries(allPlayers).sort((a,b)=>a[0].localeCompare(b[0]));
-  const sbData=[['Participante','Pts Sem.1','Pts Sem.2','Pts Sem.3','Sem.1 enviada','Sem.2 enviada','Sem.3 enviada','Pago','Fecha registro']];
+  const sbData=[['Participante','Pts Sem.1','Pts Sem.2','Pts Sem.3','Sem.1 enviada','Sem.2 enviada','Sem.3 enviada','Pago Sem.1','Pago Sem.2','Pago Sem.3','Fecha registro']];
   players.forEach(([name,p])=>{
     const lw=p.lockedWeeks||{};
     const ws=p.weekScores||{};
-    const paid=payments[name]===true?'✅ Pagó':'⏳ Pendiente';
+    const payLabel=wi=>lw[wi]?(isPaid(name,wi)?'✅ Pagó':'⏳ Pendiente'):'—';
     sbData.push([
       name,
       lw[0]?(ws[0]||0):'—',
@@ -773,11 +796,13 @@ function exportExcel(){
       lw[0]?'Sí':'No',
       lw[1]?'Sí':'No',
       lw[2]?'Sí':'No',
-      paid,
+      payLabel(0),
+      payLabel(1),
+      payLabel(2),
       new Date(p.ts).toLocaleDateString('es-MX')
     ]);
   });
-  const header=['Participante','Pago','Semana','Día','Local','Visitante','Predicción','Resultado real','Acierto'];
+  const header=['Participante','Pago de la semana','Semana','Día','Local','Visitante','Predicción','Resultado real','Acierto'];
   const detData=[header];
   players.forEach(([name,p])=>{
     WEEKS.forEach((w,wi)=>{
@@ -789,8 +814,8 @@ function exportExcel(){
           const predLabel=pred==='h'?m.h:pred==='a'?m.a:pred==='e'?'Empate':'-';
           const realLabel=real==='h'?m.h:real==='a'?m.a:real==='e'?'Empate':'-';
           const acierto=real&&pred?(pred===real?'✅':'❌'):'-';
-          const paid=payments[name]===true?'✅ Pagó':'⏳ Pendiente';
-          detData.push([name,paid,w.label,d.day,m.h,m.a,predLabel,realLabel,acierto]);
+          const paidThisWeek=(p.lockedWeeks&&p.lockedWeeks[wi])?(isPaid(name,wi)?'✅ Pagó':'⏳ Pendiente'):'—';
+          detData.push([name,paidThisWeek,w.label,d.day,m.h,m.a,predLabel,realLabel,acierto]);
         });
       });
     });
@@ -798,8 +823,8 @@ function exportExcel(){
   const wb=XLSX.utils.book_new();
   const ws1=XLSX.utils.aoa_to_sheet(sbData);
   const ws2=XLSX.utils.aoa_to_sheet(detData);
-  ws1['!cols']=[{wch:22},{wch:10},{wch:10},{wch:10},{wch:14},{wch:14},{wch:14},{wch:14},{wch:16}];
-  ws2['!cols']=[{wch:18},{wch:12},{wch:10},{wch:12},{wch:16},{wch:16},{wch:16},{wch:16},{wch:8}];
+  ws1['!cols']=[{wch:22},{wch:10},{wch:10},{wch:10},{wch:14},{wch:14},{wch:14},{wch:13},{wch:13},{wch:13},{wch:16}];
+  ws2['!cols']=[{wch:18},{wch:14},{wch:10},{wch:12},{wch:16},{wch:16},{wch:16},{wch:16},{wch:8}];
   XLSX.utils.book_append_sheet(wb,ws1,'Scoreboard');
   XLSX.utils.book_append_sheet(wb,ws2,'Predicciones detalladas');
   XLSX.writeFile(wb,'Quiniela_Mundial_2026.xlsx');
@@ -817,7 +842,7 @@ function renderAdminPredSelector(){
   document.getElementById('admin-pred-selector').innerHTML=pl.map(([name,p])=>{
     const lw=p.lockedWeeks||{};
     const sems=[0,1,2].filter(i=>lw[i]).length;
-    const paid=payments[name]===true;
+    const paid=[0,1,2].some(i=>isPaid(name,i));
     return `<div class="pay-row" style="cursor:pointer" onclick="openPredDetail('${name}')">
       <div class="sb-av${paid?' paid-ring':''}">${initials(name)}${paid?'<div class="paid-dot">✓</div>':''}</div>
       <div class="sb-info">
@@ -931,7 +956,9 @@ function downloadPDF(){
   WEEKS.forEach((w,wi)=>{
     const weekPreds=(p.weeks&&p.weeks[wi])||{};
     const isLocked=lw[wi];
-    html+=`<div class="week-title">${w.label} <span style="font-weight:400;font-size:12px">${w.range}</span> &nbsp; <span class="${isLocked?'locked':'pending'}">${isLocked?'✅ Enviada':'⏳ Pendiente'}</span></div>`;
+    const paidThisWeek=isLocked?isPaid(player,wi):false;
+    const payTxt=isLocked?(paidThisWeek?' · 💰 Pago confirmado':' · ⏳ Pago pendiente'):'';
+    html+=`<div class="week-title">${w.label} <span style="font-weight:400;font-size:12px">${w.range}</span> &nbsp; <span class="${isLocked?'locked':'pending'}">${isLocked?'✅ Enviada':'⏳ Pendiente'}${payTxt}</span></div>`;
     w.days.forEach((d,di)=>{
       html+=`<div class="day">${d.day}</div><table>`;
       d.matches.forEach((m,mi)=>{
