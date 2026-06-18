@@ -739,11 +739,13 @@ function renderPayments(){
 async function togglePay(name,wi){
   if(!payments[name])payments[name]={};
   const wasPaid=payments[name][wi]===true;
-  payments[name][wi]=!wasPaid;
+  const newValue=wasPaid?false:true; // siempre booleano explícito, nunca undefined
+  payments[name][wi]=newValue;
   try{
     await initFb();
-    await dbSet(dbRef(db,'payments/'+name+'/'+wi),payments[name][wi]);
-    showToast(payments[name][wi]?`✅ ${name} marcado como pagado en ${WEEKS[wi].short}`:`⏳ ${name} marcado como pendiente en ${WEEKS[wi].short}`);
+    if(!db||!dbRef||!dbSet){throw new Error('Firebase no está listo, intenta de nuevo en un momento');}
+    await dbSet(dbRef(db,'payments/'+name+'/'+wi),newValue);
+    showToast(newValue?`✅ ${name} marcado como pagado en ${WEEKS[wi].short}`:`⏳ ${name} marcado como pendiente en ${WEEKS[wi].short}`);
     renderPayments();
   }catch(e){
     payments[name][wi]=wasPaid;
