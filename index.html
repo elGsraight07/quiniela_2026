@@ -738,18 +738,22 @@ function renderPayments(){
 
 async function togglePay(name,wi){
   if(!payments[name])payments[name]={};
-  const wasPaid=payments[name][wi]===true;
-  const newValue=wasPaid?false:true; // siempre booleano explícito, nunca undefined
-  payments[name][wi]=newValue;
+  const wIdx=Number(wi); // forzar número explícito
+  const wasPaid=payments[name][wIdx]===true;
+  const newValue=wasPaid?false:true;
+  payments[name][wIdx]=newValue;
   try{
     await initFb();
-    if(!db||!dbRef||!dbSet){throw new Error('Firebase no está listo, intenta de nuevo en un momento');}
-    await dbSet(dbRef(db,'payments/'+name+'/'+wi),newValue);
-    showToast(newValue?`✅ ${name} marcado como pagado en ${WEEKS[wi].short}`:`⏳ ${name} marcado como pendiente en ${WEEKS[wi].short}`);
+    if(!db||!dbRef||!dbUpdate){throw new Error('Firebase no está listo, intenta de nuevo en un momento');}
+    const path='payments/'+String(name)+'/'+String(wIdx);
+    const updates={};
+    updates[path]=newValue;
+    await dbUpdate(dbRef(db),updates);
+    showToast(newValue?`✅ ${name} marcado como pagado en ${WEEKS[wIdx].short}`:`⏳ ${name} marcado como pendiente en ${WEEKS[wIdx].short}`);
     renderPayments();
   }catch(e){
-    payments[name][wi]=wasPaid;
-    console.error('Error togglePay:',e);
+    payments[name][wIdx]=wasPaid;
+    console.error('Error togglePay:',e,'name:',name,'wi:',wi,'typeof wi:',typeof wi);
     showToast('❌ Error: '+(e.message||e.code||'desconocido'));
   }
 }
